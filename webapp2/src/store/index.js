@@ -2,65 +2,109 @@ import { createStore } from 'vuex'
 
 const store = createStore({
 
-    state() {
+	state() {
 
-        return {
+		return {
+			socket: null,
+			connecting: false,
+			connected: false,
+			sensorInfo: {},
+			sensorData: {},
+			reconnectInterval: 1000
+		}
+	},
 
-            sensorData: [],
+	mutations: {
+		setSocket(state, socket) {
+			state.socket = socket
+		},
+		setConnecting(state, connecting) {
+			state.connecting = connecting
+		},
+		setConnected(state, value) {
+			state.connected = value
+		},
+		setSensorInfo(state, sensorInfo) {
+			state.sensorInfo = sensorInfo
+		}
+	},
 
-            connected: false
-        }
-    },
+	actions: {
 
-    mutations: {
+		connect({ commit, dispatch, state }) {
 
-        setConnected(state, value) {
+			if (state.connected || state.connecting) return
 
-            state.connected = value
-        }
-    },
+			commit('setConnecting', true)
 
-    actions: {
+			let socket = new WebSocket('ws://localhost:8000')
 
-        connect({ commit }) {
+			socket.onopen = () => {
 
-            let socket = new WebSocket('ws://localhost:8000')
+				console.log('Connected to server.')
 
-            socket.onopen = () => {
+				commit('setSocket', socket)
+				
+				commit('setConnecting', false)
 
-                console.log("Connected to server.")
+				commit('setConnected', true)
 
-                commit('setConnected', true)
+				dispatch('fetchSensorInfo')
 
-                socket.send(JSON.stringify({
-                    
-                    action: "stream",
+				socket.send(JSON.stringify({
 
-                    interval: 1
-                }))
+					action: 'stream',
 
-                setTimeout(() => {
+					interval: 1
+				}))
+			}
 
-                    socket.send(JSON.stringify({
+			socket.onmessage = message => {
 
-                        action: "end_stream"
+				dispatch('processMessage', JSON.parse(message.data))
+			}
 
-                    }))
+			socket.onclose = socket.onerror = (error) => {
 
-                }, 3000)
-            }
+				if (error) {
+					
+					socket.close()
+				}
 
-            socket.onmessage = message => {
+				commit('setConnected', false)
 
-                console.log('RECEIVED MESSAGE', message)
-            }
+				commit('setConnecting', false)
 
-            socket.onclose = () => {
+				setTimeout(() => {
 
-                commit('setConnected', false)
-            }
-        }
-    }
+					dispatch('connect')
+
+				}, state.reconnectInterval)
+			}
+		},
+
+		fetchSensorInfo({ commit, state }) {
+
+			state.socket.send(JSON.stringify({
+				action: 'get_sensor_info'
+			}))
+		},
+
+		processMessage({ commit }, message) {
+
+			switch (message.type) {
+
+				case 'stream_value':
+					console.log('GOT STREAM VALUE')
+					break
+
+				case 'sensor_info':
+					commit('setSensorInfo', message.sensors)
+			}
+
+			console.log('RECEIVED MESSAGE', message)
+		}
+	}
 })
 
 export default store

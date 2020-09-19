@@ -2,14 +2,20 @@
     
     <section class="status-bar">
 
-        <span class="connected-label">{{ connected ? "verbunden" : "nicht verbunden" }}</span>
+        <span class="connected-label special-font">{{ connected ? "verbunden" : "nicht verbunden" }}</span>
+
+        <icon class="connected-icon" :name="connected ? 'link' : 'link_off'"/>
     </section>
 
 </template>
 
 <script>
+import Icon from './Icon'
+
 export default {
     
+    components: { Icon },
+
     computed: {
 
         connected() {
@@ -24,7 +30,19 @@ export default {
 @import "~/assets/style/index.scss";
 
 .status-bar {
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    background: darken($background-color, 10%);
+}
 
-    background: $background-color;
+.connected-label {
+    color: $primary-color;
+    margin-left: auto;
+    margin-right: 8px;
+}
+
+.connected-icon {
+    fill: $primary-color;
 }
 </style>

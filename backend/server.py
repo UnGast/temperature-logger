@@ -61,6 +61,10 @@ class WebsocketProtocol:
 
             self.streaming = False
 
+        elif action == "get_sensor_info":
+
+            await self.send_sensor_info()
+
         else:
 
             self.end_protocol_violation("unsupported action requested")
@@ -87,7 +91,7 @@ class WebsocketProtocol:
 
                 await self.socket.send(json.dumps({
                     "type": "stream_value",
-                    "value": self.data_source.get_latest_value()
+                    "values": self.data_source.get_latest_values()
                 }))
 
                 await asyncio.sleep(interval)
@@ -98,6 +102,14 @@ class WebsocketProtocol:
 
             print("Stopped streaming values.")
 
+    async def send_sensor_info(self):
+
+        print("SEND SENSOR INFO")
+
+        await self.socket.send(json.dumps({
+            "type": "sensor_info",
+            "sensors": [s.__dict__ for s in self.data_source.get_sensors()]
+        }))
 
 
 async def serve(websocket, path):

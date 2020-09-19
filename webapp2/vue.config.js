@@ -8,7 +8,8 @@ module.exports = {
 
             alias: {
 
-                '~': path.resolve(__dirname, 'src')
+                '~': path.resolve(__dirname, 'src'),
+                'style': path.resolve(__dirname, 'src/assets/style/index.scss')
             }
         }
     }
