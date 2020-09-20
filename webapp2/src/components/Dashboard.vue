@@ -6,7 +6,7 @@
 
         <div class="body">
 
-            <graph :sensorIds="[1, 2, 4]"/>
+            <graph :sensorIds="Array.from($store.state.selectedSensorIds)"/>
 
             <sensor-info/>
 

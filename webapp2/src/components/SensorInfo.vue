@@ -10,7 +10,7 @@
 
     <div class="content">
 
-      <div class="sensor" v-for="sensor in sensorInfo" :key="sensor.id">
+      <div class="sensor" v-for="sensor in sensorInfo" :key="sensor.id" @click="handleSensorClick(sensor)">
 
         <span class="name info">{{ sensor.name }}</span>
 
@@ -52,6 +52,11 @@ export default {
     sensorInfo() {
       return this.$store.state.sensorInfo
     }
+  },
+  methods: {
+    handleSensorClick(sensor) {
+      this.$store.commit('setSensorSelected', sensor)
+    }
   }
 }
 </script>
@@ -87,6 +92,8 @@ $sensor-info-background: lighten($background-color, 5%);
   padding: 16px;
   padding-top: 24px;
   position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
 
   .name {
     position: absolute;
@@ -97,6 +104,7 @@ $sensor-info-background: lighten($background-color, 5%);
     padding: 8px;
     font-family: $special-font-family;
     font-size: 1.2rem;
+    border-radius: 5px;
   }
 
   .label {
@@ -118,6 +126,10 @@ $sensor-info-background: lighten($background-color, 5%);
         margin-bottom: 0;
       }
     }
+  }
+
+  &:hover {
+    background: lighten($sensor-info-background, 5%);
   }
 }
 </style>

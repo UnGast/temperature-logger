@@ -10,7 +10,8 @@ const store = createStore({
 			connected: false,
 			sensorInfo: {},
 			sensorData: {},
-			reconnectInterval: 1000
+			reconnectInterval: 1000,
+			selectedSensorIds: new Set()
 		}
 	},
 
@@ -25,7 +26,17 @@ const store = createStore({
 			state.connected = value
 		},
 		setSensorInfo(state, sensorInfo) {
-			state.sensorInfo = sensorInfo
+			state.sensorInfo = {}
+
+			for (let sensor of sensorInfo) {
+				state.sensorInfo[sensor.id] = sensor
+			}
+		},
+		setSelectedSensorIds(state, ids) {
+			state.selectedSensorIds = new Set(ids)
+		},
+		setSensorSelected(state, sensor) {
+			state.selectedSensorIds.add(sensor.id)
 		},
 		storeStreamValues(state, values) {
 
