@@ -14,19 +14,23 @@
 
         <span class="name info">{{ sensor.name }}</span>
 
-        <div class="meta-info">
+        <table class="meta-info">
 
-          <div class="field">
-            
-            <label class="label">Position:</label> <span class="position info">{{ sensor.position }}</span>
-          </div>
+          <tbody>
 
-          <div class="field">
+            <tr class="field">
+              
+              <td><label class="label">Position:</label></td><td><span class="position info">{{ sensor.position }}</span></td>
+            </tr>
 
-            <label class="label">ID:</label> <span class="id info">{{ sensor.id }}</span>
-          </div>
+            <tr class="field">
 
-        </div>
+              <td><label class="label">ID:</label></td><td><span class="id info">{{ sensor.id }}</span></td>
+            </tr>
+          
+          </tbody>
+
+        </table>
 
       </div>
 
@@ -94,9 +98,7 @@ $sensor-info-background: lighten($background-color, 5%);
   }
 
   .meta-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    text-align: left;
 
     .field {
       margin-bottom: 16px;

@@ -20,10 +20,10 @@ class MockDataSource(DataSource):
         super().__init__()
 
         self.sensors = [
-            sensors.Mock("Somewhere over the rainbow", 1),
-            sensors.Mock("Somewhere over the rainbow", 1),
-            sensors.Mock("Somewhere over the rainbow", 1),
-            sensors.Mock("Somewhere over the rainbow", 1)
+            sensors.Mock(1, "Somewhere over the rainbow"),
+            sensors.Mock(2, "Somewhere over the rainbow"),
+            sensors.Mock(3, "Somewhere over the rainbow"),
+            sensors.Mock(4, "Somewhere over the rainbow")
         ]
 
     def get_sensors(self):
@@ -32,4 +32,4 @@ class MockDataSource(DataSource):
 
     def get_latest_values(self):
 
-        return 1
+        return dict([(s.id, s.last_value()) for s in self.sensors])

@@ -8,6 +8,8 @@
 
             <sensor-info/>
 
+            <graph :sensorIds="[1, 2, 4]"/>
+
         </div>
 
     </section>
@@ -17,10 +19,11 @@
 <script>
 import StatusBar from './StatusBar'
 import SensorInfo from './SensorInfo'
+import Graph from './Graph'
 
 export default {
     
-    components: { StatusBar, SensorInfo },
+    components: { StatusBar, SensorInfo, Graph },
 }
 </script>
 

@@ -1,3 +1,5 @@
+import math
+from datetime import datetime
 import sensors
 
 class Mock(sensors.Sensor):
@@ -6,6 +8,8 @@ class Mock(sensors.Sensor):
 
       super().__init__(id=id, name="Mock", position=position, accuracy=0.5)
 
-  def read(self):
+  def last_value(self) -> { 'timestamp': int, 'value': float }:
 
-      return 20
+      time = datetime.now()
+
+      return { 'timestamp': time.timestamp(), 'value': math.sin(time.timestamp()) }

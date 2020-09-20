@@ -26,6 +26,25 @@ const store = createStore({
 		},
 		setSensorInfo(state, sensorInfo) {
 			state.sensorInfo = sensorInfo
+		},
+		storeStreamValues(state, values) {
+
+			for (let [sensorId, value] of Object.entries(values)) {
+
+				if (!state.sensorData[sensorId]) {
+					state.sensorData[sensorId] = []
+				}
+
+				state.sensorData[sensorId].push(value)
+
+		/*		var appendIndex = 0
+
+				for (var i = state.sensorData[sensorId].length; i > 0; i++) {
+					if state.sensorData[sensorId][i - 1].timestamp >
+				}
+
+				state.sensorData[sensorId].splice(appendIndex, 0, value)*/
+			}
 		}
 	},
 
@@ -95,13 +114,14 @@ const store = createStore({
 			switch (message.type) {
 
 				case 'stream_value':
-					console.log('GOT STREAM VALUE')
+					commit('storeStreamValues', message.values)
 					break
 
 				case 'sensor_info':
 					commit('setSensorInfo', message.sensors)
+					break
 			}
-
+			
 			console.log('RECEIVED MESSAGE', message)
 		}
 	}
