@@ -121,8 +121,6 @@ const store = createStore({
 					commit('setSensorInfo', message.sensors)
 					break
 			}
-			
-			console.log('RECEIVED MESSAGE', message)
 		}
 	}
 })

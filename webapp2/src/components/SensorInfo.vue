@@ -18,16 +18,22 @@
 
           <tbody>
 
-            <tr class="field">
-              
-              <td><label class="label">Position:</label></td><td><span class="position info">{{ sensor.position }}</span></td>
+            <tr>
+              <div class="field">
+                
+                <td><label class="label">Position:</label></td><td><span class="position info">{{ sensor.position }}</span></td>
+                
+              </div>
             </tr>
 
-            <tr class="field">
+            <tr>
+              <div class="field">
 
-              <td><label class="label">ID:</label></td><td><span class="id info">{{ sensor.id }}</span></td>
+                <td><label class="label">ID:</label></td><td><span class="id info">{{ sensor.id }}</span></td>
+
+              </div>
             </tr>
-          
+
           </tbody>
 
         </table>
@@ -64,12 +70,13 @@ $sensor-info-background: lighten($background-color, 5%);
 }
 
 .heading {
-  margin-bottom: 16px;
+  margin-bottom: 32px;
+  color: $primary-color;
 }
 
 .content {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
 .sensor {
@@ -99,6 +106,10 @@ $sensor-info-background: lighten($background-color, 5%);
 
   .meta-info {
     text-align: left;
+
+    td {
+      vertical-align: top;
+    }
 
     .field {
       margin-bottom: 16px;

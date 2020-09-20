@@ -6,9 +6,9 @@
 
         <div class="body">
 
-            <sensor-info/>
-
             <graph :sensorIds="[1, 2, 4]"/>
+
+            <sensor-info/>
 
         </div>
 
@@ -36,7 +36,21 @@ export default {
 }
 
 .body {
-    padding: 16px;
+    //padding: 16px;
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .sensor-info {
+        flex-basis: 20%;
+        flex-grow: 0;
+        margin-right: 48px;
+    }
+
+    .graph {
+        align-self: stretch;
+        height: 50vh;
+        margin-bottom: 32px;
+    }
 }
 </style>
