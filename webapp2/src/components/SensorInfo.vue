@@ -18,20 +18,28 @@
 
           <tbody>
 
-            <tr>
-              <div class="field">
-                
-                <td><label class="label">Position:</label></td><td><span class="position info">{{ sensor.position }}</span></td>
-                
-              </div>
+            <tr class="field">
+
+              <td><label class="label">ID:</label></td><td><span class="id info">{{ sensor.id }}</span></td>
+
             </tr>
 
-            <tr>
-              <div class="field">
+            <tr class="field">
+                
+              <td><label class="label">Position:</label></td><td><span class="position info">{{ sensor.position }}</span></td>
+                
+            </tr>
 
-                <td><label class="label">ID:</label></td><td><span class="id info">{{ sensor.id }}</span></td>
+            <tr class="field">
+              
+              <td><label class="label">Wert:</label></td><td><span class="latest-value info">{{ sensorData[sensor.id].slice(-1)[0].value }}</span></td>
 
-              </div>
+            </tr>
+
+            <tr class="field">
+              
+              <td><label class="label">Genauigkeit:</label></td><td><span class="latest-value info">± {{ sensor.accuracy }}</span></td>
+
             </tr>
 
           </tbody>
@@ -51,11 +59,14 @@ export default {
   computed: {
     sensorInfo() {
       return this.$store.state.sensorInfo
+    },
+    sensorData() {
+      return this.$store.state.sensorData
     }
   },
   methods: {
     handleSensorClick(sensor) {
-      this.$store.commit('setSensorSelected', sensor)
+      this.$store.commit('setSensorSelected', sensor.id)
     }
   }
 }
@@ -80,15 +91,17 @@ $sensor-info-background: lighten($background-color, 5%);
 }
 
 .content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  //display: grid;
+  //grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .sensor {
   border: 1px solid white;
   border-radius: 5px;
   border-color: darken($sensor-info-background, 20%);
-  margin: 0 16px 16px 0;
+  margin: 0 16px 32px 0;
   padding: 16px;
   padding-top: 24px;
   position: relative;
@@ -101,15 +114,11 @@ $sensor-info-background: lighten($background-color, 5%);
     left: 8px;
     transform: translateY(-50%);
     background: $sensor-info-background;
-    padding: 8px;
+    padding: 4px 8px;
     font-family: $special-font-family;
     font-size: 1.2rem;
     border-radius: 5px;
-  }
-
-  .label {
-    font-weight: bold;
-    margin-right: 16px;
+    border: 1px solid darken($sensor-info-background, 20%);;
   }
 
   .meta-info {
@@ -117,6 +126,12 @@ $sensor-info-background: lighten($background-color, 5%);
 
     td {
       vertical-align: top;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-right: 16px;
+      text-transform: uppercase;
     }
 
     .field {

@@ -6,7 +6,7 @@
 
         <div class="body">
 
-            <graph :sensorIds="Array.from($store.state.selectedSensorIds)"/>
+            <graph/>
 
             <sensor-info/>
 
@@ -39,18 +39,15 @@ export default {
     //padding: 16px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
 
     .sensor-info {
         flex-basis: 20%;
         flex-grow: 0;
-        margin-right: 48px;
     }
 
     .graph {
         align-self: stretch;
-        height: 50vh;
-        margin-bottom: 32px;
+        margin-bottom: 1px;
     }
 }
 </style>

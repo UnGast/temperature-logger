@@ -1,5 +1,10 @@
 $primary-color: rgb(0, 255, 149);
 
-$background-color: rgb(38, 70, 100);
+$background-color: rgb(21, 45, 68);
 
 $special-font-family: Lobster
+
+:export {
+  primaryColor: $primary-color;
+  backgroundColor: $background-color;
+}

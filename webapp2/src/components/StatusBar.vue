@@ -1,10 +1,12 @@
 <template>
     
     <section class="status-bar">
+        
+        <div class="connection-status" :class="{ connected }">
+            <span class="label special-font">{{ connected ? "verbunden" : "verbinden" }}</span>
 
-        <span class="connected-label special-font">{{ connected ? "verbunden" : "nicht verbunden" }}</span>
-
-        <icon class="connected-icon" :name="connected ? 'link' : 'link_off'"/>
+            <icon class="icon" :name="connected ? 'cloud' : 'cloud_queue'"/>
+        </div>
     </section>
 
 </template>
@@ -33,16 +35,25 @@ export default {
     padding: 8px;
     display: flex;
     align-items: center;
-    background: darken($background-color, 10%);
+    background: darken($background-color, 2%);
 }
 
-.connected-label {
-    color: $primary-color;
+.connection-status {
+    color: rgb(255, 201, 74);
+    fill: currentColor;
     margin-left: auto;
-    margin-right: 8px;
-}
 
-.connected-icon {
-    fill: $primary-color;
+    &.connected {
+        color: $primary-color;
+        fill: $primary-color;
+    }
+    
+    .label {
+        margin-right: 8px;
+    }
+
+    .icon {
+
+    }
 }
 </style>

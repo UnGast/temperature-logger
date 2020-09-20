@@ -1,4 +1,7 @@
 import { createStore } from 'vuex'
+import chroma from 'chroma-js'
+
+let sensorColorScale = chroma.scale(['yellow', 'lightgreen', 'lime', 'lightblue', 'orange']).mode('lch')
 
 const store = createStore({
 
@@ -11,7 +14,7 @@ const store = createStore({
 			sensorInfo: {},
 			sensorData: {},
 			reconnectInterval: 1000,
-			selectedSensorIds: new Set()
+			selectedSensorIds: new Set([1, 2, 3, 4])
 		}
 	},
 
@@ -28,15 +31,21 @@ const store = createStore({
 		setSensorInfo(state, sensorInfo) {
 			state.sensorInfo = {}
 
-			for (let sensor of sensorInfo) {
+			let colors = sensorColorScale.colors(sensorInfo.length)
+
+			for (let [index, sensor] of sensorInfo.entries()) {
 				state.sensorInfo[sensor.id] = sensor
+				state.sensorInfo[sensor.id].color = colors[index]
 			}
 		},
 		setSelectedSensorIds(state, ids) {
 			state.selectedSensorIds = new Set(ids)
 		},
-		setSensorSelected(state, sensor) {
-			state.selectedSensorIds.add(sensor.id)
+		setSensorSelected(state, sensorId) {
+			state.selectedSensorIds.add(sensorId)
+		},
+		setSensorUnselected(state, sensorId) {
+			state.selectedSensorIds.delete(sensorId)
 		},
 		storeStreamValues(state, values) {
 
