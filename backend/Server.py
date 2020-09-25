@@ -1,26 +1,24 @@
 import websockets
 import asyncio
 import json
-import DataSource
+from SensorManager import SensorManager
+
 
 class WebsocketProtocol:
 
-
-    def __init__(self, socket, data_source):
+    def __init__(self, socket, sensor_manager: SensorManager):
 
         self.streaming = False
 
         self.socket = socket
 
-        self.data_source = data_source
+        self.sensor_manager = sensor_manager
 
         self.listen_task = asyncio.create_task(self.listen())
-
 
     async def execute(self):
 
         await self.listen_task
-
 
     async def listen(self):
 
@@ -29,15 +27,14 @@ class WebsocketProtocol:
         while True:
 
             try:
-            
+
                 message = await self.socket.recv()
-        
+
                 await self.onmessage(message)
 
             except:
 
                 break
-
 
     async def onmessage(self, message):
 
@@ -69,13 +66,11 @@ class WebsocketProtocol:
 
             self.end_protocol_violation("unsupported action requested")
 
-
     async def end_protocol_violation(self, description):
 
         await self.socket.send("Ending communication because of protocol violation: {}".format(description))
 
         await self.socket.close()
-
 
     async def stream_values(self, interval):
 
@@ -86,16 +81,16 @@ class WebsocketProtocol:
             while True:
 
                 if not self.streaming:
-                    
+
                     break
 
                 await self.socket.send(json.dumps({
                     "type": "stream_value",
-                    "values": self.data_source.get_latest_values()
+                    "values": self.sensor_manager.get_latest_values()
                 }))
 
                 await asyncio.sleep(interval)
-        
+
         finally:
 
             self.streaming = False
@@ -112,18 +107,26 @@ class WebsocketProtocol:
         }))
 
 
-async def serve(websocket, path):
+class Server:
 
-    print("Connected to", websocket, path)
+    def __init__(self, sensor_manager: SensorManager):
 
-    protocol = WebsocketProtocol(websocket, DataSource.MockDataSource())
+        self.sensor_manager = sensor_manager
 
-    await protocol.execute()
+    async def serve_connection(self, websocket, path):
 
+        print("connected to", websocket, path)
 
+        protocol = WebsocketProtocol(websocket, self.sensor_manager)
 
-start_server = websockets.serve(serve, "0.0.0.0", 8000)
+        await protocol.execute()
 
-asyncio.get_event_loop().run_until_complete(start_server)
+    def serve(self, host="0.0.0.0", port=8000):
 
-asyncio.get_event_loop().run_forever()
+        print("starting server on {}:{}".format(host, port))
+
+        start_server = websockets.serve(self.serve_connection, host, port)
+
+        asyncio.get_event_loop().run_until_complete(start_server)
+
+        asyncio.get_event_loop().run_forever()
