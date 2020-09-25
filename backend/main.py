@@ -7,9 +7,11 @@ from Server import Server
 import config
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--mock", action="store_true", help="serve data that is generated for testing purposes")
+arg_parser.add_argument("--mock", action="store_true", help="serve data that is generated for testing purposes, if given --sensors and --logger are not required")
 arg_parser.add_argument("--sensors", help="a yaml file that defines a list of sensors")
 arg_parser.add_argument("--logger", help="a yaml file that defines the configuration for the data logger")
+arg_parser.add_argument("--host", help="which host should the server listen on", default="0.0.0.0")
+arg_parser.add_argument("--port", help="which port should the server bind to", default=8000)
 args = arg_parser.parse_args()
 
 sensor_config_file_path = None
@@ -46,8 +48,8 @@ data_logger = DataLoggerClass(sensor_manager=sensor_manager, **data_logger_argum
 
 print("initialized application with sensors:", sensors, "and data logger", data_logger)
 
-server = Server(sensor_manager)
+server = Server(sensor_manager, data_logger)
 
-asyncio.gather(server.serve(), data_logger.log_loop())
+asyncio.gather(server.serve(host=args.host, port=args.port), data_logger.log_loop())
 
 asyncio.get_event_loop().run_forever()
