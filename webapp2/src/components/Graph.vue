@@ -103,7 +103,12 @@
 						<div class="settings">
 
 							<template v-if="timeframe === 'interval'">
-								<date-time-input :value="new Date()"/>
+
+								<date-time-input v-model="timeframeStart"/>
+								
+								<date-time-input v-model="timeframeEnd"/>
+
+								<button class="fetch-timeframe-interval-button" @click="handleRequestFetchTimeframeIntervalData">Laden</button>
 							</template>
 							
 						</div>
@@ -133,12 +138,25 @@ export default {
 		visibleXLength: 100,
 		dataAreaBackgroundColor: chroma(variables.backgroundColor).darken(0.2),
 		highlightedSensorId: null,
-		timeframe: 'latest',
-		timeframeSettings: {
-			interval: [0, 0]
-		}
+		timeframe: 'latest'
 	}),
 	computed: {
+		timeframeStart: {
+			get() {
+				return this.$store.state.timeframeStart
+			},
+			set(value) {
+				this.$store.commit('setTimeframeStart', value)
+			}
+		},
+		timeframeEnd: {
+			get() {
+				return this.$store.state.timeframeEnd
+			},
+			set(value) {
+				this.$store.commit('setTimeframeEnd', value)
+			}
+		},
 		sensorIds() {
 			return Array.from(this.$store.state.selectedSensorIds)
 		},
@@ -321,6 +339,9 @@ export default {
 		},
 		handleLineLegendEntryMouseLeave(line) {
 			this.highlightedSensorId = null
+		},
+		handleRequestFetchTimeframeIntervalData() {
+			this.$store.dispatch('fetchTimeframeIntervalData')
 		},
 		updateAspectRatio() {
 			let bounds = this.$refs.graphic.getBoundingClientRect()

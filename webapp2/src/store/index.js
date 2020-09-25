@@ -14,7 +14,9 @@ const store = createStore({
 			sensorInfo: {},
 			sensorData: {},
 			reconnectInterval: 1000,
-			selectedSensorIds: new Set([1, 2, 3, 4])
+			selectedSensorIds: new Set([1, 2, 3, 4]),
+			timeframeStart: Date.now() - 1000 * 1000,
+			timeframeEnd: Date.now()
 		}
 	},
 
@@ -64,6 +66,26 @@ const store = createStore({
 				}
 
 				state.sensorData[sensorId].splice(appendIndex, 0, value)*/
+			}
+		},
+		setTimeframeStart(state, value) {
+			state.timeframeStart = value
+		},
+		setTimeframeEnd(state, value) {
+			state.timeframeEnd = value
+		},
+		storeTimeframeIntervalValues(state, values) {
+
+			for (let timeValue of values) {
+
+				state.sensorData[String(timeValue.sensorId)].push({
+					timestamp: timeValue.timestamp,
+					value: timeValue.value
+				})
+			}
+
+			for (let timeValues of state.sensorData.values()) {
+				timeValues.sort((a, b) => a.timestamp - b.timestamp)
 			}
 		}
 	},
@@ -140,7 +162,20 @@ const store = createStore({
 				case 'sensor_info':
 					commit('setSensorInfo', message.sensors)
 					break
+				
+				case 'past_data':
+					commit('storeTimeframeIntervalValues', message.data)
+					break
 			}
+		},
+
+		fetchTimeframeIntervalData({ state }) {
+
+			state.socket.send(JSON.stringify({
+				action: 'get_past_data',
+				start: Math.floor(state.timeframeStart / 1000),
+				end: Math.floor(state.timeframeEnd / 1000)
+			}))
 		}
 	}
 })

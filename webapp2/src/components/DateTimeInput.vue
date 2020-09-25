@@ -8,7 +8,9 @@ import { format as formatDate } from 'date-fns'
 
 export default {
   props: {
-    value: Date
+    modelValue: {
+      default: "WOW"
+    }
   },
   data: () => {
     return {
@@ -23,15 +25,25 @@ export default {
   },
   setup(props) {
     return {
-      ...setupDisplayText(props.value)
+      ...setupDisplayText(props.modelValue)
     }
   }
 }
 
 function setupDisplayText(initialValue) {
+  
   const state = reactive({
-    displayText: formatDate(initialValue, 'dd/MM/yyyy HH:mm')
+    displayText: format(initialValue)
   })
+
+  function format(value) {
+
+    if (!value) {
+      return ''
+    } else {
+      return formatDate(initialValue, 'dd/MM/yyyy HH:mm')
+    }
+  } 
 
   return { ...state }
 }

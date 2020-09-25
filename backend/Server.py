@@ -34,7 +34,9 @@ class WebsocketProtocol:
 
                 await self.onmessage(message)
 
-            except:
+            except Exception as e:
+
+                print("an error occurred while handling a message", e)
 
                 break
 
@@ -120,9 +122,12 @@ class WebsocketProtocol:
 
         print("sending past data from {} to {}".format(start, end))
 
-        data = self.data_logger.get_past_data(start, end)
+        data = await self.data_logger.get_past_data(start, end)
 
-        await self.socket.send(json.dumps(data))
+        await self.socket.send(json.dumps({
+          "type": "past_data",
+          "data": data
+        }))
 
 
 class Server:

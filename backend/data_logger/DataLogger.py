@@ -15,7 +15,7 @@ class DataLogger(ABC):
     pass
 
   @abstractmethod
-  async def get_past_data(self, start: int, end: int) -> [{'timestamp': int, 'value': float}]:
+  async def get_past_data(self, start: int, end: int) -> [{'sensor_id': int, 'timestamp': int, 'value': float}]:
     """
     get historical data between two unix timestamps
     """
