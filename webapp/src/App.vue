@@ -1,27 +1,44 @@
 <template>
-  <div id="app">
-    <Graph/>
-  </div>
+  
+  <section class="app">
+
+    <div style="display:none" v-html="iconSvg"></div>
+
+    <dashboard/>
+
+  </section>
+
 </template>
 
 <script>
-import Graph from './components/Graph.vue'
+import iconSvg from '!raw-loader!~/assets/icons/icomoon/symbol-defs.svg'
+import Dashboard from './components/Dashboard.vue'
 
 export default {
   name: 'App',
   components: {
-    Graph
+    Dashboard
+  },
+  computed: {
+    iconSvg() {
+      return iconSvg
+    }
   }
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "~/assets/style/global/index.scss";
+</style>
 
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<style lang="scss" scoped>
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.dashboard {
+  flex-grow: 1;
 }
 </style>

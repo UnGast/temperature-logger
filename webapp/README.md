@@ -1,4 +1,4 @@
-# webapp
+# Vue webapp for displaying sensor data
 
 ## Project setup
 ```
