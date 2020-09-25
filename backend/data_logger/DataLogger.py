@@ -1,6 +1,7 @@
 import asyncio
+from abc import ABC, abstractmethod
 
-class DataLogger():
+class DataLogger(ABC):
 
   def __init__(self, sensor_manager, interval):
 
@@ -8,10 +9,15 @@ class DataLogger():
 
     self.interval = interval
 
+  @abstractmethod
   async def log_loop(self):
 
-    while True:
+    pass
 
-      print("LOG DATA")
+  @abstractmethod
+  async def get_past_data(self, start: int, end: int) -> [{'timestamp': int, 'value': float}]:
+    """
+    get historical data between two unix timestamps
+    """
 
-      await asyncio.sleep(self.interval)
+    pass

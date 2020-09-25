@@ -2,17 +2,19 @@ import websockets
 import asyncio
 import json
 from SensorManager import SensorManager
-
+from data_logger import DataLogger
 
 class WebsocketProtocol:
 
-    def __init__(self, socket, sensor_manager: SensorManager):
+    def __init__(self, socket, sensor_manager: SensorManager, data_logger: DataLogger):
 
         self.streaming = False
 
         self.socket = socket
 
         self.sensor_manager = sensor_manager
+
+        self.data_logger = data_logger
 
         self.listen_task = asyncio.create_task(self.listen())
 
@@ -22,7 +24,7 @@ class WebsocketProtocol:
 
     async def listen(self):
 
-        print("Start listening on socket", self.socket)
+        print("starting listening on socket", self.socket)
 
         while True:
 
@@ -38,7 +40,7 @@ class WebsocketProtocol:
 
     async def onmessage(self, message):
 
-        print("Received message", message)
+        print("received message", message)
 
         payload = json.loads(message)
 
@@ -62,13 +64,21 @@ class WebsocketProtocol:
 
             await self.send_sensor_info()
 
+        elif action == "get_past_data":
+
+          start = int(payload["start"])
+
+          end = int(payload["end"])
+
+          await self.send_past_data(start, end)
+
         else:
 
             self.end_protocol_violation("unsupported action requested")
 
     async def end_protocol_violation(self, description):
 
-        await self.socket.send("Ending communication because of protocol violation: {}".format(description))
+        await self.socket.send("ending communication because of protocol violation: {}".format(description))
 
         await self.socket.close()
 
@@ -95,38 +105,46 @@ class WebsocketProtocol:
 
             self.streaming = False
 
-            print("Stopped streaming values.")
+            print("stopped streaming values")
 
     async def send_sensor_info(self):
 
-        print("SEND SENSOR INFO")
+        print("sending sensor info")
 
         await self.socket.send(json.dumps({
             "type": "sensor_info",
-            "sensors": [s.__dict__ for s in self.data_source.get_sensors()]
+            "sensors": [s.__dict__ for s in self.sensor_manager.sensors]
         }))
+
+    async def send_past_data(self, start: int, end: int):
+
+        print("sending past data from {} to {}".format(start, end))
+
+        data = self.data_logger.get_past_data(start, end)
+
+        await self.socket.send(json.dumps(data))
 
 
 class Server:
 
-    def __init__(self, sensor_manager: SensorManager):
+    def __init__(self, sensor_manager: SensorManager, data_logger: DataLogger):
 
         self.sensor_manager = sensor_manager
+
+        self.data_logger = data_logger
 
     async def serve_connection(self, websocket, path):
 
         print("connected to", websocket, path)
 
-        protocol = WebsocketProtocol(websocket, self.sensor_manager)
+        protocol = WebsocketProtocol(websocket, self.sensor_manager, self.data_logger)
 
         await protocol.execute()
 
-    def serve(self, host="0.0.0.0", port=8000):
+    async def serve(self, host="0.0.0.0", port=8000):
 
         print("starting server on {}:{}".format(host, port))
 
         start_server = websockets.serve(self.serve_connection, host, port)
 
-        asyncio.get_event_loop().run_until_complete(start_server)
-
-        asyncio.get_event_loop().run_forever()
+        await start_server

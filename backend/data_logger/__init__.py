@@ -1,5 +1,5 @@
 from .DataLogger import DataLogger
 
-Default = DataLogger
+from .DefaultDataLogger import DefaultDataLogger as Default
 
 from .MockDataLogger import MockDataLogger as Mock
