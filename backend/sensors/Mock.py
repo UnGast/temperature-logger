@@ -6,7 +6,7 @@ class Mock(sensors.Sensor):
 
   def __init__(self, id, position):
 
-      super().__init__(id=id, name="Mock", position=position, accuracy=0.5)
+      super().__init__(id=id, type="Mock", position=position, accuracy=0.5)
 
   def last_value(self) -> { 'timestamp': int, 'value': float }:
 

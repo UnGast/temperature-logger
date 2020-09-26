@@ -10,6 +10,7 @@ export interface SensorArrayData {
 
 export interface SensorInfo {
   id: string
+  type: string
   position: string
   accuracy: number 
 }

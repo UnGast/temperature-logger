@@ -5,7 +5,7 @@ class DS18B20(sensors.Sensor):
     
     def __init__(self, id, position):
 
-        super().__init__(id=id, name="DS18B20", position=position, accuracy=0.5) # is accuracy correct?
+        super().__init__(id=id, type="DS18B20", position=position, accuracy=0.5) # is accuracy correct?
 
         self.file = open("/sys/bus/w1/devices/{}/w1_slave".format(id), "r")
 

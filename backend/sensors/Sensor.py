@@ -1,10 +1,10 @@
 class Sensor:
     
-    def __init__(self, id, name, position, accuracy):
+    def __init__(self, id, type, position, accuracy):
         
         self.id = id
 
-        self.name = name
+        self.type = type
 
         self.position = position
 
@@ -12,4 +12,4 @@ class Sensor:
 
     def read(self):
 
-        print("READ NOT IMPLEMENTED FOR SENSOR: {} with id {} at {}".format(self.name, self.id, self.position))
+        print("READ NOT IMPLEMENTED FOR SENSOR: {} with id {} at {}".format(self.type, self.id, self.position))

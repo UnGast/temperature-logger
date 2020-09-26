@@ -17,11 +17,11 @@ export default class DownloadPackager {
 
       let sensorInfo = info[sensorId]
 
-      csv += 'temperature(°C):'
+      csv += 'temperature(degC):'
 
       if (sensorInfo) {
 
-        csv += `${sensorInfo.id}:${sensorInfo.position}`
+        csv += `${sensorInfo.id}:${sensorInfo.type}:${sensorInfo.position}`
 
       } else {
 

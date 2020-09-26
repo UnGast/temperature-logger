@@ -12,7 +12,7 @@
 
       <div class="sensor" v-for="sensor in Object.values(sensorInfo)" :key="sensor.id" @click="handleSensorClick(sensor)">
 
-        <span class="name info">{{ sensor.name }}</span>
+        <span class="type info">{{ sensor.type }}</span>
 
         <table class="meta-info">
 
@@ -115,7 +115,7 @@ $sensor-info-background: lighten($background-color, 5%);
   cursor: pointer;
   transition: background 0.2s;
 
-  .name {
+  .type {
     position: absolute;
     top: 0;
     left: 8px;

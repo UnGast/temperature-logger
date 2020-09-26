@@ -104,7 +104,7 @@ export default {
 
         graphLabels[sensorId] = {
           color: rawSensorInfo[sensorId].color,
-          text: rawSensorInfo[sensorId].position
+          text: rawSensorInfo[sensorId].type + ', ' + rawSensorInfo[sensorId].position
         }
       }
 
