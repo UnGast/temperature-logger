@@ -80,7 +80,7 @@ import chroma from 'chroma-js'
 
 import variables from 'style'
 
-import GraphDataManager from '~/utils/graph/GraphDataManager'
+import GraphDataManager from '~/data/graph/GraphDataManager'
 
 export default {
 	props: {

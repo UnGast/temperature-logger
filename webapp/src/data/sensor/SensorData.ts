@@ -1,0 +1,19 @@
+export interface SensorDataPoint {
+  sensorId?: string
+  timestamp: number 
+  value: number 
+}
+
+export interface SensorArrayData {
+ [key: string]: [SensorDataPoint]
+}
+
+export interface SensorInfo {
+  id: string
+  position: string
+  accuracy: number 
+}
+
+export interface SensorArrayInfo {
+  [key: string]: SensorInfo
+}

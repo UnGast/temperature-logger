@@ -4,7 +4,7 @@
 
 <script>
 import { reactive, computed } from 'vue'
-import { format as formatDate } from 'date-fns'
+import { formatDatetime } from '~/data/date/format'
 
 export default {
   props: {
@@ -41,7 +41,7 @@ function setupDisplayText(initialValue) {
     if (!value) {
       return ''
     } else {
-      return formatDate(initialValue, 'dd/MM/yyyy HH:mm')
+      return formatDatetime(initialValue)
     }
   } 
 

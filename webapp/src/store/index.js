@@ -1,6 +1,9 @@
 import { createStore } from 'vuex'
 import chroma from 'chroma-js'
 
+import { formatDatetime } from '~/data/date/format'
+import DownloadPackager from '~/data/sensor/DownloadPackager'
+
 let sensorColorScale = chroma.scale(['yellow', 'lightgreen', 'lime', 'lightblue', 'orange']).mode('lch')
 
 const store = createStore({
@@ -86,13 +89,17 @@ const store = createStore({
 
 			for (let timeValue of values) {
 
-				state.sensorData[String(timeValue.sensorId)].push({
+				if (!state.sensorData[timeValue.sensorId]) {
+					state.sensorData[timeValue.sensorId] = []
+				}
+
+				state.sensorData[timeValue.sensorId].push({
 					timestamp: timeValue.timestamp,
 					value: timeValue.value
 				})
 			}
 
-			for (let timeValues of state.sensorData.values()) {
+			for (let timeValues of Object.values(state.sensorData)) {
 				timeValues.sort((a, b) => a.timestamp - b.timestamp)
 			}
 		}
@@ -119,6 +126,8 @@ const store = createStore({
 				commit('setConnected', true)
 
 				dispatch('fetchSensorInfo')
+
+				dispatch('fetchTimeframeIntervalData')
 
 				socket.send(JSON.stringify({
 
@@ -182,9 +191,34 @@ const store = createStore({
 
 			state.socket.send(JSON.stringify({
 				action: 'get_past_data',
-				start: Math.floor(state.timeframeStart / 1000),
-				end: Math.floor(state.timeframeEnd / 1000)
+				start: Math.floor(state.timeframeSettings.interval.start / 1000),
+				end: Math.floor(state.timeframeSettings.interval.end / 1000)
 			}))
+		},
+
+		downloadTimeframeIntervalData({ state }) {
+
+			let blob = DownloadPackager.pack(state.sensorData, state.sensorInfo)
+
+			let blobUrl = window.URL.createObjectURL(blob)
+
+			let a = document.createElement('a')
+
+			a.href = blobUrl
+
+			let startDate = new Date(state.timeframeSettings.interval.start)
+
+			let endDate = new Date(state.timeframeSettings.interval.end)
+
+			a.setAttribute('download', `sensor-data-${formatDatetime(startDate)}-${formatDatetime(endDate)}.csv`)
+
+			a.style.display = 'none'
+
+			document.body.append(a)
+
+			a.click()
+
+			a.remove()
 		}
 	}
 })

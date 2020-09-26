@@ -25,6 +25,8 @@
             <date-time-input v-model="timeframeIntervalEnd"/>
 
             <button class="fetch-timeframe-interval-button" @click="handleRequestFetchTimeframeIntervalData">Laden</button>
+
+            <button @click="handleRequestDownloadTimeframeIntervalData">Herunterladen</button>
           </template>
           
         </div>
@@ -112,7 +114,10 @@ export default {
   methods: {
 		handleRequestFetchTimeframeIntervalData() {
 			this.$store.dispatch('fetchTimeframeIntervalData')
-		},
+    },
+    handleRequestDownloadTimeframeIntervalData() {
+      this.$store.dispatch('downloadTimeframeIntervalData')
+    }
   },
   setup() {
 
