@@ -100,14 +100,68 @@ export default {
         console.log("RAW SENSOR INFO IS", rawSensorInfo)
         console.log(sensorId)
 
-        graphLabels[sensorId] = rawSensorInfo[sensorId].position
+        graphLabels[sensorId] = {
+          color: rawSensorInfo[sensorId].color,
+          text: rawSensorInfo[sensorId].position
+        }
       }
 
       return graphLabels
     }
+  },
+  methods: {
+		handleRequestFetchTimeframeIntervalData() {
+			this.$store.dispatch('fetchTimeframeIntervalData')
+		},
   },
   setup() {
 
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'style';
+
+.dashboard-graph-card {
+	background: lighten($background-color, 5%);
+}
+
+.timeframe-setting {
+	display: flex;
+	flex-direction: column;
+	
+	.label {
+		font-weight: bold;
+		text-transform: uppercase;
+		font-size: 1rem;
+		margin-bottom: 16px;
+	}
+	
+	.option {
+		border: 0;
+		background: white;
+		margin-right: 1px;
+		position: relative;
+		outline: 0;
+		cursor: pointer;
+		transition: all .2s;
+		text-transform: uppercase;
+		font-size: .9rem;
+		padding: 4px 8px;
+
+		&:hover {
+			border-radius: 5px;
+			box-shadow: 0 0 0 1px $primary-color;
+		}
+
+		&.selected {
+			background: darken($background-color, 10%);
+			border-radius: 12px;
+			color: white;
+			box-shadow: 0 0 0 3px $primary-color;
+			z-index: 1000;
+		}
+	}
+}
+</style>

@@ -32,7 +32,7 @@
 
             <tr class="field">
               
-              <td><label class="label">Wert:</label></td><td><span class="latest-value info">{{ getLatestSensorValue(sensor).value }}</span></td>
+              <td><label class="label">Wert:</label></td><td><span class="latest-value info">{{ getLatestSensorValue(sensor) }}</span></td>
 
             </tr>
 
@@ -70,7 +70,7 @@ export default {
     },
     getLatestSensorValue(sensor) {
       if (this.sensorData[sensor.id]) {
-        return this.sensorData[sensor.id].slice(-1)[0]
+        return this.sensorData[sensor.id].slice(-1)[0].value
       } else {
         return undefined
       }
