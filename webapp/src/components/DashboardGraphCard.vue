@@ -24,9 +24,9 @@
             
             <date-time-input v-model="timeframeIntervalEnd"/>
 
-            <button class="fetch-timeframe-interval-button" @click="handleRequestFetchTimeframeIntervalData">Laden</button>
+            <button class="fetch-timeframe-interval-button button" @click="handleRequestFetchTimeframeIntervalData">Laden</button>
 
-            <button @click="handleRequestDownloadTimeframeIntervalData">Herunterladen</button>
+            <button class="button" @click="handleRequestDownloadTimeframeIntervalData">Herunterladen</button>
           </template>
           
         </div>
@@ -129,7 +129,7 @@ export default {
 @import 'style';
 
 .dashboard-graph-card {
-	background: lighten($background-color, 5%);
+  padding: 32px;
 }
 
 .timeframe-setting {

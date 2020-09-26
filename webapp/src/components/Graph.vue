@@ -40,21 +40,21 @@
 				</svg>
 
 				<svg>
-					<line x1="10" y1="0" x2="10" :y2="graphSize.height" :stroke-width="axisWidth" stroke="white"/>
+					<line x1="10" y1="0" x2="10" :y2="graphSize.height" :stroke-width="axisWidth" :stroke="axisColor"/>
 
-					<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisLabels" :key="label.text" stroke-width="0.25" stroke="white"/>
+					<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
 
-					<text v-for="label in yAxisLabels" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" fill="white">{{ label.text }}</text>
+					<text v-for="label in yAxisLabels" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" :fill="axisColor">{{ label.text }}</text>
 				</svg>
 
 				<svg x="0" :y="graphSize.height">
 					<svg x="10">
-						<line x1="0" y1="0" :x2="graphSize.width" y2="0" :stroke-width="axisWidth" stroke="white"/>
+						<line x1="0" y1="0" :x2="graphSize.width" y2="0" :stroke-width="axisWidth" :stroke="axisColor"/>
 						
-						<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisLabels" :key="label.text" stroke-width="0.25" stroke="white"/>
+						<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
 					</svg>
 
-					<text class="x-label" v-for="label in xAxisLabels" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" fill="white">{{ label.text }}</text>			</svg>
+					<text class="x-label" v-for="label in xAxisLabels" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" :fill="axisColor">{{ label.text }}</text>			</svg>
 			</svg>
 
 			<div class="legend">
@@ -62,7 +62,7 @@
 					v-for="line in lines"
 					:key="line.id"
 					class="line"
-					:style="{ background: line.label.color }"
+					:style="{ color: line.label.color }"
 					@mouseenter="handleLineLegendEntryMouseEnter(line)"
 					@mouseleave="handleLineLegendEntryMouseLeave(line)">
 
@@ -107,6 +107,7 @@ export default {
 			axisWidth: 0.5,
 			visibleXLength: 100,
 			dataAreaBackgroundColor: chroma(variables.backgroundColor).darken(0.2),
+			axisColor: chroma(variables.backgroundColor).brighten(3),
 			highlightedLineId: null,
 			dataManager: new GraphDataManager(this.data)
 		}
@@ -285,12 +286,12 @@ export default {
 	.line {
 		margin-bottom: 8px;
 		padding: 8px;
-		border-radius: 5px;
 		max-width: 100px;
 		font-size: .8rem;
-		color: black;
+		font-weight: bold;
 		display: flex;
 		align-items: center;
+		background: darken($background-color, 5%);
 
 		.info {
 			margin-right: 8px;

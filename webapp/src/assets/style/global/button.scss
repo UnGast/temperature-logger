@@ -1,0 +1,31 @@
+.button {
+  background: $primary-color;
+  border: 0;
+  padding: 8px 12px;
+  //background:
+  $grad-start: lighten($background-color, 15%);
+  $grad-end: lighten($background-color, 7%);
+  /*background: radial-gradient(ellipse at top, change-color($grad-start, $alpha: .5) 50%, change-color($grad-end, $alpha: .5)),
+   linear-gradient(to bottom, lighten($background-color, 10%) 0%, darken($background-color, 25%) 40%, lighten($background-color, 35%) 100%);
+  *///border: 2px solid darken($primary-color, 10%);
+  background: linear-gradient(to bottom, $grad-start, $grad-end);
+  border: 1px solid darken($grad-end, 10%);
+  box-shadow: 0 0 2px 4px rgba(0,0,0,.15);
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: .9rem;
+  color: white;
+  letter-spacing: .03em;
+  transition: all .3s;
+  cursor: pointer;
+  outline: 0;
+  border-radius: 3px;
+
+  &:hover {
+    background: linear-gradient(to bottom, lighten($grad-start, 5%), lighten($grad-end, 5%));
+  }
+
+  &:active {
+    background: darken($grad-end, 5%);
+  }
+}
