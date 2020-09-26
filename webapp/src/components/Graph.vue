@@ -80,6 +80,8 @@ import chroma from 'chroma-js'
 
 import variables from 'style'
 
+import GraphDataManager from '~/utils/graph/GraphDataManager'
+
 export default {
 	props: {
 		data: {
@@ -95,56 +97,35 @@ export default {
 			default: null
 		}
 	},
-	data: () => ({
-		width: 200,
-		height: 100,
-		dataPointerPosition: { x: 0, y: 0 },
-		showDataPointer: false,
-		strokeWidth: 0.2,
-		axisWidth: 0.5,
-		visibleXLength: 100,
-		dataAreaBackgroundColor: chroma(variables.backgroundColor).darken(0.2),
-		highlightedLineId: null
-	}),
+	data() {
+		return {
+			width: 200,
+			height: 100,
+			dataPointerPosition: { x: 0, y: 0 },
+			showDataPointer: false,
+			strokeWidth: 0.2,
+			axisWidth: 0.5,
+			visibleXLength: 100,
+			dataAreaBackgroundColor: chroma(variables.backgroundColor).darken(0.2),
+			highlightedLineId: null,
+			dataManager: new GraphDataManager(this.data)
+		}
+	},
 	computed: {
-		dataFeatures() {
-			let features = {
-				yMax: -1000,
-				yMin: 10000,
-				xMin: Number.MAX_VALUE,
-				xMax: -Number.MAX_VALUE
-			}
-
-			for (let dataPointList of Object.values(this.data)) {
-				for (let dataPoint of dataPointList) {
-					if (dataPoint.y > features.yMax) {
-						features.yMax = dataPoint.y
-					}
-					if (dataPoint.y < features.yMin) {
-						features.yMin = dataPoint.y
-					}
-					if (dataPoint.x > features.xMax) {
-						features.xMax = dataPoint.x
-					}
-					if (dataPoint.x < features.xMin) {
-						features.xMin = dataPoint.x
-					}
-				}
-			}
-
-			return features
+		dataBounds() {
+			return this.dataManager.dataBounds
 		},
 		visibleArea() {
 			var area = {
-				xMin: this.dataFeatures.xMin - this.visibleXLength,
-				xMax: this.dataFeatures.xMax,
-				yMin: this.dataFeatures.yMin,
-				yMax: this.dataFeatures.yMax
+				xMin: this.dataBounds.xMin - this.visibleXLength,
+				xMax: this.dataBounds.xMax,
+				yMin: this.dataBounds.yMin,
+				yMax: this.dataBounds.yMax
 			}
 			
-			if (this.dataFeatures.xMax - this.dataFeatures.xMin < this.visibleXLength) {
-				area.xMin = this.dataFeatures.xMin
-				area.xMax = this.dataFeatures.xMin + this.visibleXLength
+			if (this.dataBounds.xMax - this.dataBounds.xMin < this.visibleXLength) {
+				area.xMin = this.dataBounds.xMin
+				area.xMax = this.dataBounds.xMin + this.visibleXLength
 			}
 
 			return area
@@ -260,6 +241,11 @@ export default {
 			let bounds = this.$refs.graphic.getBoundingClientRect()
 			let aspectRatio = bounds.width / bounds.height
 			this.width = aspectRatio * this.height
+		}
+	},
+	watch: {
+		data() {
+			this.dataManager.data = this.data
 		}
 	},
 	mounted() {

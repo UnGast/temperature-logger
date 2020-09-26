@@ -1,27 +1,44 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  
+  <section class="app">
+
+    <div style="display:none" v-html="iconSvg"></div>
+
+    <dashboard/>
+
+  </section>
+
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import HelloWorld from './components/HelloWorld.vue';
+<script>
+import iconSvg from '!raw-loader!~/assets/icons/icomoon/symbol-defs.svg'
+import Dashboard from './components/Dashboard.vue'
 
-@Options({
+export default {
+  name: 'App',
   components: {
-    HelloWorld,
+    Dashboard
   },
-})
-export default class App extends Vue {}
+  computed: {
+    iconSvg() {
+      return iconSvg
+    }
+  }
+}
 </script>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+@import "~/assets/style/global/index.scss";
+</style>
+
+<style lang="scss" scoped>
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.dashboard {
+  flex-grow: 1;
 }
 </style>
