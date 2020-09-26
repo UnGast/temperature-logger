@@ -6,7 +6,7 @@
 
         <div class="body">
 
-            <graph/>
+            <dashboard-graph-card/>
 
             <sensor-info/>
 
@@ -19,11 +19,11 @@
 <script>
 import StatusBar from './StatusBar'
 import SensorInfo from './SensorInfo'
-import Graph from './Graph'
+import DashboardGraphCard from './DashboardGraphCard'
 
 export default {
     
-    components: { StatusBar, SensorInfo, Graph },
+    components: { StatusBar, SensorInfo, DashboardGraphCard },
 }
 </script>
 

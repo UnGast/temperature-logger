@@ -10,7 +10,7 @@
 
     <div class="content">
 
-      <div class="sensor" v-for="sensor in sensorInfo" :key="sensor.id" @click="handleSensorClick(sensor)">
+      <div class="sensor" v-for="sensor in Object.values(sensorInfo)" :key="sensor.id" @click="handleSensorClick(sensor)">
 
         <span class="name info">{{ sensor.name }}</span>
 
@@ -32,7 +32,7 @@
 
             <tr class="field">
               
-              <td><label class="label">Wert:</label></td><td><span class="latest-value info">{{ sensorData[sensor.id].slice(-1)[0].value }}</span></td>
+              <td><label class="label">Wert:</label></td><td><span class="latest-value info">{{ getLatestSensorValue(sensor).value }}</span></td>
 
             </tr>
 
@@ -67,6 +67,13 @@ export default {
   methods: {
     handleSensorClick(sensor) {
       this.$store.commit('setSensorSelected', sensor.id)
+    },
+    getLatestSensorValue(sensor) {
+      if (this.sensorData[sensor.id]) {
+        return this.sensorData[sensor.id].slice(-1)[0]
+      } else {
+        return undefined
+      }
     }
   }
 }

@@ -1,17 +1,13 @@
 <template>
-	<section class="graph card">
+	<section class="graph">
 
-		<h1 class="heading">Graph</h1>
-
-		<div class="content">
-
-			<template v-if="sensorIds.length === 0">
+			<!--<template v-if="sensorIds.length === 0">
 
 				<span class="no-sensor-selected-info">kein Sensor ausgewählt</span>
 
-			</template>
+			</template>-->
 
-			<template v-else>
+<!--<template v-else>-->
 
 				<div class="upper">
 
@@ -34,7 +30,7 @@
 
 								<polyline
 									v-for="line in lines"
-									:key="line.sensorId"
+									:key="line.id"
 									transform="translate(10, 0)"
 									:opacity="line.opacity"
 									fill="none"
@@ -54,22 +50,22 @@
 						<svg>
 							<line x1="10" y1="0" x2="10" :y2="graphSize.height" :stroke-width="axisWidth" stroke="white"/>
 
-							<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yLabels" :key="label.text" stroke-width="0.25" stroke="white"/>
+							<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisLabels" :key="label.text" stroke-width="0.25" stroke="white"/>
 
-							<text v-for="label in yLabels" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" fill="white">{{ label.text }}</text>
+							<text v-for="label in yAxisLabels" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" fill="white">{{ label.text }}</text>
 						</svg>
 
 						<svg x="0" :y="graphSize.height">
 							<svg x="10">
 								<line x1="0" y1="0" :x2="graphSize.width" y2="0" :stroke-width="axisWidth" stroke="white"/>
 								
-								<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xLabels" :key="label.text" stroke-width="0.25" stroke="white"/>
+								<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisLabels" :key="label.text" stroke-width="0.25" stroke="white"/>
 							</svg>
 
-							<text class="x-label" v-for="label in xLabels" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" fill="white">{{ label.text }}</text>			</svg>
+							<text class="x-label" v-for="label in xAxisLabels" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" fill="white">{{ label.text }}</text>			</svg>
 					</svg>
 
-					<div class="legend">
+				<!--<div class="legend">
 						<div
 							v-for="line in lines"
 							:key="line.sensorId"
@@ -85,37 +81,9 @@
 
 								<icon class="deselect-action" name="clear" @click="handleDeselectSensorRequest(line.sensorId)"/>
 						</div>
-					</div>
+					</div>-->
 				</div>
-
-				<div class="lower">
-					<div class="timeframe-setting">
-						<label class="label">Zeitraum</label>
-
-						<div class="options">
-						
-							<button class="option" :class="{ selected: timeframe === 'latest' }" @click="timeframe = 'latest'">Neue</button>
-
-							<button class="option" :class="{ selected: timeframe === 'interval' }" @click="timeframe = 'interval'">Interval</button>
-
-						</div>
-
-						<div class="settings">
-
-							<template v-if="timeframe === 'interval'">
-
-								<date-time-input v-model="timeframeStart"/>
-								
-								<date-time-input v-model="timeframeEnd"/>
-
-								<button class="fetch-timeframe-interval-button" @click="handleRequestFetchTimeframeIntervalData">Laden</button>
-							</template>
-							
-						</div>
-					</div>
-				</div>
-			</template>
-		</div>
+		<!--	</template-->
 	</section>
 </template>
 
@@ -124,10 +92,23 @@ import chroma from 'chroma-js'
 
 import variables from 'style'
 import Icon from './Icon'
-import DateTimeInput from './DateTimeInput'
 
 export default {
-	components: { Icon, DateTimeInput },
+	components: { /*Icon*/ },
+	props: {
+		data: {
+			type: Object,
+			required: true
+		},
+		labels: {
+			type: Object,
+			required: true
+		},
+		initialVisibleArea: {
+			type: Object,
+			default: null
+		}
+	},
 	data: () => ({
 		width: 200,
 		height: 100,
@@ -137,90 +118,47 @@ export default {
 		axisWidth: 0.5,
 		visibleXLength: 100,
 		dataAreaBackgroundColor: chroma(variables.backgroundColor).darken(0.2),
-		highlightedSensorId: null,
-		timeframe: 'latest'
+		highlightedSensorId: null
 	}),
 	computed: {
-		timeframeStart: {
-			get() {
-				return this.$store.state.timeframeStart
-			},
-			set(value) {
-				this.$store.commit('setTimeframeStart', value)
-			}
-		},
-		timeframeEnd: {
-			get() {
-				return this.$store.state.timeframeEnd
-			},
-			set(value) {
-				this.$store.commit('setTimeframeEnd', value)
-			}
-		},
-		sensorIds() {
-			return Array.from(this.$store.state.selectedSensorIds)
-		},
-		sensorData() {
-			var filtered = {}
-			for (let sensorId of this.sensorIds) {
-				if (this.$store.state.sensorData[sensorId]) {
-					filtered[sensorId] = this.$store.state.sensorData[sensorId]
-				}
-			}
-			return filtered
-		},
-		sensorInfo() {
-			var filtered = {}
-			for (let sensorId of this.sensorIds) {
-				if (this.$store.state.sensorInfo[sensorId]) {
-					filtered[sensorId] = this.$store.state.sensorInfo[sensorId]
-				}
-			}
-			return filtered
-		},
 		dataFeatures() {
-			var highestValue = -1000
-			var lowestValue = 10000
-			var lowestTimestamp = Number.MAX_VALUE
-			var highestTimestamp = -Number.MAX_VALUE
+			let features = {
+				yMax: -1000,
+				yMin: 10000,
+				xMin: Number.MAX_VALUE,
+				xMax: -Number.MAX_VALUE
+			}
 
-			for (let timeValueList of Object.values(this.sensorData)) {
-
-				for (let timeValue of timeValueList) {
-					//console.log("value", timeValue)
-					if (timeValue.value > highestValue) {
-						highestValue = timeValue.value
+			for (let dataPointList of Object.values(this.data)) {
+				for (let dataPoint of dataPointList) {
+					if (dataPoint.y > features.yMax) {
+						features.yMax = dataPoint.y
 					}
-					if (timeValue.value < lowestValue) {
-						lowestValue = timeValue.value
+					if (dataPoint.y < features.yMin) {
+						features.yMin = dataPoint.y
 					}
-					if (timeValue.timestamp > highestTimestamp) {
-						highestTimestamp = timeValue.timestamp
+					if (dataPoint.x > features.xMax) {
+						features.xMax = dataPoint.x
 					}
-					if (timeValue.timestamp < lowestTimestamp) {
-						lowestTimestamp = timeValue.timestamp
+					if (dataPoint.x < features.xMin) {
+						features.xMin = dataPoint.x
 					}
 				}
 			}
 
-			return {
-				highestValue,
-				lowestValue,
-				lowestTimestamp,
-				highestTimestamp
-			}
+			return features
 		},
 		visibleArea() {
 			var area = {
-				xMin: this.dataFeatures.highestTimestamp - this.visibleXLength,
-				xMax: this.dataFeatures.highestTimestamp,
-				yMin: this.dataFeatures.lowestValue,
-				yMax: this.dataFeatures.highestValue
-			} 
+				xMin: this.dataFeatures.xMin - this.visibleXLength,
+				xMax: this.dataFeatures.xMax,
+				yMin: this.dataFeatures.yMin,
+				yMax: this.dataFeatures.yMax
+			}
 			
-			if (this.dataFeatures.highestTimestamp - this.dataFeatures.lowestTimestamp < this.visibleXLength) {
-				area.xMin = this.dataFeatures.lowestTimestamp
-				area.xMax = this.dataFeatures.lowestTimestamp + this.visibleXLength
+			if (this.dataFeatures.xMax - this.dataFeatures.xMin < this.visibleXLength) {
+				area.xMin = this.dataFeatures.xMin
+				area.xMax = this.dataFeatures.xMin + this.visibleXLength
 			}
 
 			return area
@@ -240,31 +178,26 @@ export default {
 		lines() {
 			var lines = []
 
-			for (var i = 0; i < this.sensorIds.length; i++) {
+			for (let dataPointListId of Object.keys(this.data)) {
 
-				let sensorId = this.sensorIds[i]
-				
-				let sensorData = this.sensorData[sensorId]
+				let dataPointList = this.data[dataPointListId]
 
-				let sensorInfo = this.sensorInfo[sensorId]
-
-				if (!sensorData || sensorData.length === 0) {
-					continue
-				}
+				let label = this.labels[dataPointListId]
 
 				lines.push({
-					sensorId: sensorId,
-					color: sensorInfo.color,
-					opacity: this.highlightedSensorId && this.highlightedSensorId !== sensorId ? 0.2 : 1,
-					points: this.sensorData[sensorId].map(timeValue => {
-						return `${Math.floor(timeValue.timestamp - this.visibleArea.xMin) * this.graphScale.x},${Math.floor((timeValue.value - this.visibleArea.yMin) * this.graphScale.y)}`
+					id: dataPointListId,
+					color: 'white', //sensorInfo.color,
+					opacity: 1, //this.highlightedSensorId && this.highlightedSensorId !== sensorId ? 0.2 : 1,
+					points: dataPointList.map(dataPoint => {
+						return `${Math.floor(dataPoint.x - this.visibleArea.xMin) * this.graphScale.x},${Math.floor((dataPoint.y - this.visibleArea.yMin) * this.graphScale.y)}`
 					}).join(' ')
 				})
 			}
 
 			return lines
 		},
-		yLabels() {
+		yAxisLabels() {
+
 			var labels = []
 
 			var visibleAxisLength = this.visibleArea.yMax - this.visibleArea.yMin
@@ -286,7 +219,7 @@ export default {
 			
 			return labels
 		},
-		xLabels() {
+		xAxisLabels() {
 
 			var labels = []
 
@@ -331,12 +264,12 @@ export default {
 		handleDataAreaMouseLeave() {
 			this.showDataPointer = false
 		},
-		handleDeselectSensorRequest(sensorId) {
+		/*handleDeselectSensorRequest(sensorId) {
 			this.$store.commit('setSensorUnselected', sensorId)
 		},
 		handleLineLegendEntryMouseEnter(line) {
 			this.highlightedSensorId = line.sensorId
-		},
+		},*/
 		handleLineLegendEntryMouseLeave(line) {
 			this.highlightedSensorId = null
 		},
@@ -429,7 +362,7 @@ export default {
 	}
 }
 
-.timeframe-setting {
+.selectedTimeframe-setting {
 	display: flex;
 	flex-direction: column;
 	
