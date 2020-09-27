@@ -3,7 +3,7 @@
     <h1 class="heading">Graph</h1>
 
 		<div class="content">
-      <graph :data="graphData" :labels="graphLabels"/>
+      <graph :initialVisibleArea="graphVisibleArea" :data="graphData" :labels="graphLabels"/>
 
       <div class="timeframe-setting">
         <label class="label">Zeitraum</label>
@@ -39,6 +39,7 @@
 import { reactive } from 'vue'
 import Graph from './Graph'
 import DateTimeInput from './DateTimeInput'
+import SensorDataManager from '~/data/sensor/SensorDataManager'
 
 export default {
   components: { Graph, DateTimeInput },
@@ -91,6 +92,23 @@ export default {
       }
 
       return graphData
+    },
+    graphVisibleArea() {
+      if (this.selectedTimeframe === 'latest') {
+        let latestTimestamp = SensorDataManager.getLatestTimestamp(this.$store.state.sensorData)
+
+        return {
+          xMin: latestTimestamp - 100,
+          xMax: latestTimestamp
+        }
+      } else if (this.selectedTimeframe === 'interval') {
+        return {
+          xMin: this.$store.state.timeframeSettings.interval.start,
+          xMax: this.$store.state.timeframeSettings.interval.end
+        }
+      } else {
+        return null
+      }
     },
     graphLabels() {
       let rawSensorInfo = this.$store.state.sensorInfo

@@ -21,8 +21,8 @@ const store = createStore({
 			selectedTimeframe: 'interval',
 			timeframeSettings: {
 				interval: {
-					start: Date.now() - 1000 * 1000,
-					end: Date.now()
+					start: Math.floor(Date.now() / 1000) - 1000,
+					end: Math.floor(Date.now() / 1000)
 				}
 			}
 		}
@@ -191,8 +191,8 @@ const store = createStore({
 
 			state.socket.send(JSON.stringify({
 				action: 'get_past_data',
-				start: Math.floor(state.timeframeSettings.interval.start / 1000),
-				end: Math.floor(state.timeframeSettings.interval.end / 1000)
+				start: state.timeframeSettings.interval.start,
+				end: state.timeframeSettings.interval.end
 			}))
 		},
 

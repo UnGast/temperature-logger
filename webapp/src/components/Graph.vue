@@ -15,15 +15,14 @@
 					y="0"
 					:width="graphSize.width"
 					:height="graphSize.height"
-					:viewBox="`${0} ${Math.floor(0) - strokeWidth} ${(visibleXLength)} ${(visibleArea.yMax - visibleArea.yMin) * graphScale.y + strokeWidth}`"
-					preserveAspectRatio="xMinYMin">
+					:viewBox="`0 0 ${graphSize.width} ${graphSize.height}`"
+					preserveAspectRatio="none">
 
 						<rect :width="graphSize.width" :height="graphSize.height" :fill="dataAreaBackgroundColor"/>
 
 						<polyline
 							v-for="line in lines"
 							:key="line.id"
-							transform="translate(10, 0)"
 							:opacity="line.opacity"
 							fill="none"
 							:stroke="line.label.color"
@@ -105,7 +104,6 @@ export default {
 			showDataPointer: false,
 			strokeWidth: 0.2,
 			axisWidth: 0.5,
-			visibleXLength: 100,
 			dataAreaBackgroundColor: chroma(variables.backgroundColor).darken(0.2),
 			axisColor: chroma(variables.backgroundColor).brighten(3),
 			highlightedLineId: null,
@@ -117,47 +115,114 @@ export default {
 			return this.dataManager.dataBounds
 		},
 		visibleArea() {
-			var area = {
-				xMin: this.dataBounds.xMin - this.visibleXLength,
-				xMax: this.dataBounds.xMax,
-				yMin: this.dataBounds.yMin,
-				yMax: this.dataBounds.yMax
-			}
-			
-			if (this.dataBounds.xMax - this.dataBounds.xMin < this.visibleXLength) {
-				area.xMin = this.dataBounds.xMin
-				area.xMax = this.dataBounds.xMin + this.visibleXLength
-			}
 
+			var xMin = this.initialVisibleArea?.xMin || this.dataBounds.xMin
+
+			var xMax = this.initialVisibleArea?.xMax || this.dataBounds.xMax
+
+			var bounds = this.dataManager.getDataBoundsBetween(xMin, xMax)
+
+			var area = Object.assign({}, bounds, this.initialVisibleArea)
+			
 			return area
 		},
 		graphSize() {
+
 			return {
+
 				width: this.width - 10,
+
 				height: this.height - 10
 			}
 		},
 		graphScale() {
+
 			return {
+
 				x: this.graphSize.width / (this.visibleArea.xMax - this.visibleArea.xMin),
+
 				y: this.graphSize.height / (this.visibleArea.yMax - this.visibleArea.yMin)
 			}
 		},
+		maxVisiblePoints() {
+			
+			return this.$refs.dataArea ? this.$refs.dataArea.getBoundingClientRect().width / 5 : 100
+		},
 		lines() {
-			var lines = []
+			let lines = []
 
 			for (let dataPointListId of Object.keys(this.data)) {
 
 				let dataPointList = this.data[dataPointListId]
 
+				let sampledDataPoints = []
+
+				let sampleStartIndex = null
+
+				let sampleEndIndex = null
+
+				for (let i = 0; i < dataPointList.length; i++) {
+
+					let dataPoint = dataPointList[i]
+
+					if (sampleStartIndex === null && dataPoint.x >= this.visibleArea.xMin) {
+
+						sampleStartIndex = Math.max(0, i - 1)
+
+					} else if (sampleEndIndex === null && dataPoint.x >= this.visibleArea.xMax) {
+				
+						sampleEndIndex = i
+
+						break
+					}
+				}
+
+				if (sampleStartIndex === null) {
+
+					sampleStartIndex = dataPointList.length - 1
+				}
+
+				if (sampleEndIndex === null) {
+
+					sampleEndIndex = dataPointList.length - 1
+				}
+
+				var maxSampleCount = sampleEndIndex - sampleStartIndex
+
+				var stepSize = 0
+
+				if (maxSampleCount <= this.maxVisiblePoints) {
+
+					stepSize = 1
+
+				} else {
+
+					stepSize = maxSampleCount / this.maxVisiblePoints
+				}
+
+				for (let i = sampleStartIndex; i <= sampleEndIndex; i += stepSize) {
+
+					var flooredIndex = Math.floor(i)
+
+					var dataPoint = dataPointList[flooredIndex]
+
+					sampledDataPoints.push(dataPoint)
+				}
+
 				let label = this.labels[dataPointListId]
 
 				lines.push({
+
 					id: dataPointListId,
+
 					label,
+
 					opacity: this.highlightedLineId && this.highlightedLineId !== dataPointListId ? 0.2 : 1,
-					points: dataPointList.map(dataPoint => {
+
+					points: sampledDataPoints.map(dataPoint => {
+
 						return `${Math.floor(dataPoint.x - this.visibleArea.xMin) * this.graphScale.x},${Math.floor((dataPoint.y - this.visibleArea.yMin) * this.graphScale.y)}`
+
 					}).join(' ')
 				})
 			}

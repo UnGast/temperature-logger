@@ -10,7 +10,7 @@
   *///border: 2px solid darken($primary-color, 10%);
   background: linear-gradient(to bottom, $grad-start, $grad-end);
   border: 1px solid darken($grad-end, 10%);
-  box-shadow: 0 0 2px 4px rgba(0,0,0,.15);
+  box-shadow: 0 0 2px 2px rgba(0,0,0,.15);
   font-weight: bold;
   text-transform: uppercase;
   font-size: .9rem;
