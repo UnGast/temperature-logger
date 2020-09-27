@@ -8,13 +8,7 @@
       <div class="timeframe-setting">
         <label class="label">Zeitraum</label>
 
-        <div class="options">
-        
-          <button class="option" :class="{ selected: selectedTimeframe === 'latest' }" @click="selectedTimeframe = 'latest'">Neue</button>
-
-          <button class="option" :class="{ selected: selectedTimeframe === 'interval' }" @click="selectedTimeframe = 'interval'">Interval</button>
-
-        </div>
+        <button-options class="options" :options="[ { label: 'Neueste', value: 'latest' }, { label: 'Intervall', value: 'interval' } ]" v-model="selectedTimeframe"/>
 
         <div class="settings">
 
@@ -40,9 +34,10 @@ import { reactive } from 'vue'
 import Graph from './Graph'
 import DateTimeInput from './DateTimeInput'
 import SensorDataManager from '~/data/sensor/SensorDataManager'
+import ButtonOptions from './ButtonOptions'
 
 export default {
-  components: { Graph, DateTimeInput },
+  components: { Graph, DateTimeInput, ButtonOptions },
   computed: {
 		timeframeIntervalStart: {
 			get() {
