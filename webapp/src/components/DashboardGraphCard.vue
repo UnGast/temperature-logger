@@ -5,7 +5,8 @@
 		<div class="content">
       <graph :initialVisibleArea="graphVisibleArea" :data="graphData" :labels="graphLabels"/>
 
-      <div class="timeframe-setting">
+      <div class="timeframe-selection">
+
         <label class="label">Zeitraum</label>
 
         <button-options class="options" :options="[ { label: 'Neueste', value: 'latest' }, { label: 'Intervall', value: 'interval' } ]" v-model="selectedTimeframe"/>
@@ -14,9 +15,9 @@
 
           <template v-if="selectedTimeframe === 'interval'">
 
-            <date-time-input v-model="timeframeIntervalStart"/>
+            <datetime-input v-model="timeframeIntervalStart"/>
             
-            <date-time-input v-model="timeframeIntervalEnd"/>
+            <datetime-input v-model="timeframeIntervalEnd"/>
 
             <button class="fetch-timeframe-interval-button button" @click="handleRequestFetchTimeframeIntervalData">Laden</button>
 
@@ -32,12 +33,12 @@
 <script>
 import { reactive } from 'vue'
 import Graph from './Graph'
-import DateTimeInput from './DateTimeInput'
+import DatetimeInput from './DatetimeInput'
 import SensorDataManager from '~/data/sensor/SensorDataManager'
 import ButtonOptions from './ButtonOptions'
 
 export default {
-  components: { Graph, DateTimeInput, ButtonOptions },
+  components: { Graph, DatetimeInput, ButtonOptions },
   computed: {
 		timeframeIntervalStart: {
 			get() {
@@ -112,9 +113,6 @@ export default {
 
       for (let sensorId of this.selectedSensorIds) {
 
-        console.log("RAW SENSOR INFO IS", rawSensorInfo)
-        console.log(sensorId)
-
         graphLabels[sensorId] = {
           color: rawSensorInfo[sensorId].color,
           text: rawSensorInfo[sensorId].type + ', ' + rawSensorInfo[sensorId].position
@@ -145,41 +143,36 @@ export default {
   padding: 32px;
 }
 
-.timeframe-setting {
+.graph {
+  margin-bottom: 48px;
+}
+
+.timeframe-selection {
 	display: flex;
-	flex-direction: column;
+  flex-direction: column;
+  align-items: flex-start;
 	
 	.label {
 		font-weight: bold;
 		text-transform: uppercase;
 		font-size: 1rem;
-		margin-bottom: 16px;
+    margin-bottom: 24px;
+    color: $card-foreground-color;
 	}
 	
-	.option {
-		border: 0;
-		background: white;
-		margin-right: 1px;
-		position: relative;
-		outline: 0;
-		cursor: pointer;
-		transition: all .2s;
-		text-transform: uppercase;
-		font-size: .9rem;
-		padding: 4px 8px;
+	.options {
+    margin-bottom: 16px;
+  }
 
-		&:hover {
-			border-radius: 5px;
-			box-shadow: 0 0 0 1px $primary-color;
-		}
+  .settings {
+    
+    .datetime-input {
+      margin-right: 16px;
+    }
 
-		&.selected {
-			background: darken($background-color, 10%);
-			border-radius: 12px;
-			color: white;
-			box-shadow: 0 0 0 3px $primary-color;
-			z-index: 1000;
-		}
-	}
+    .button {
+      margin-right: 16px;
+    }
+  }
 }
 </style>

@@ -1,74 +1,71 @@
 <template>
 	<section class="graph">
 
-		<div class="upper">
+		<svg ref="graphic" class="graphic" :viewBox="`0 0 ${width} ${height}`" preserveAspectRatio="xMinYMin">
 
-			<svg ref="graphic" class="graphic" :viewBox="`0 0 ${width} ${height}`" preserveAspectRatio="xMinYMin">
+			<svg
+				ref="dataArea"
+				@mouseenter="handleDataAreaMouseEnter"
+				@mousemove="handleDataAreaMouseMove"
+				@mouseleave="handleDataAreaMouseLeave"
+				pointer-events="bounding-box"
+				x="10"
+				y="0"
+				:width="graphSize.width"
+				:height="graphSize.height"
+				:viewBox="`0 0 ${graphSize.width} ${graphSize.height}`"
+				preserveAspectRatio="none">
 
-				<svg
-					ref="dataArea"
-					@mouseenter="handleDataAreaMouseEnter"
-					@mousemove="handleDataAreaMouseMove"
-					@mouseleave="handleDataAreaMouseLeave"
-					pointer-events="bounding-box"
-					x="10"
-					y="0"
-					:width="graphSize.width"
-					:height="graphSize.height"
-					:viewBox="`0 0 ${graphSize.width} ${graphSize.height}`"
-					preserveAspectRatio="none">
+					<rect :width="graphSize.width" :height="graphSize.height" :fill="dataAreaBackgroundColor"/>
 
-						<rect :width="graphSize.width" :height="graphSize.height" :fill="dataAreaBackgroundColor"/>
+					<polyline
+						v-for="line in lines"
+						:key="line.id"
+						:opacity="line.opacity"
+						fill="none"
+						:stroke="line.label.color"
+						:stroke-width="strokeWidth"
+						:points="line.points"/>
 
-						<polyline
-							v-for="line in lines"
-							:key="line.id"
-							:opacity="line.opacity"
-							fill="none"
-							:stroke="line.label.color"
-							:stroke-width="strokeWidth"
-							:points="line.points"/>
-
-						<template v-if="showDataPointer">
-							<line
-								:x1="dataPointerPosition.x" y1="0" :x2="dataPointerPosition.x" :y2="graphSize.height" stroke="white" stroke-width="0.25" stroke-dasharray="1 2" stroke-style="dotted"/>
-							
-							<line
-								:x1="0" :y1="dataPointerPosition.y" :x2="graphSize.width" :y2="dataPointerPosition.y" stroke="white" stroke-width="0.25" stroke-dasharray="1 2" stroke-style="dotted"/>
-						</template>
-				</svg>
-
-				<svg>
-					<line x1="10" y1="0" x2="10" :y2="graphSize.height" :stroke-width="axisWidth" :stroke="axisColor"/>
-
-					<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
-
-					<text v-for="label in yAxisLabels" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" :fill="axisColor">{{ label.text }}</text>
-				</svg>
-
-				<svg x="0" :y="graphSize.height">
-					<svg x="10">
-						<line x1="0" y1="0" :x2="graphSize.width" y2="0" :stroke-width="axisWidth" :stroke="axisColor"/>
+					<template v-if="showDataPointer">
+						<line
+							:x1="dataPointerPosition.x" y1="0" :x2="dataPointerPosition.x" :y2="graphSize.height" stroke="white" stroke-width="0.25" stroke-dasharray="1 2" stroke-style="dotted"/>
 						
-						<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
-					</svg>
-
-					<text class="x-label" v-for="label in xAxisLabels" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" :fill="axisColor">{{ label.text }}</text>			</svg>
+						<line
+							:x1="0" :y1="dataPointerPosition.y" :x2="graphSize.width" :y2="dataPointerPosition.y" stroke="white" stroke-width="0.25" stroke-dasharray="1 2" stroke-style="dotted"/>
+					</template>
 			</svg>
 
-			<div class="legend">
-				<div
-					v-for="line in lines"
-					:key="line.id"
-					class="line"
-					:style="{ color: line.label.color }"
-					@mouseenter="handleLineLegendEntryMouseEnter(line)"
-					@mouseleave="handleLineLegendEntryMouseLeave(line)">
+			<svg>
+				<line x1="10" y1="0" x2="10" :y2="graphSize.height" :stroke-width="axisWidth" :stroke="axisColor"/>
 
-						<div class="info">
-							<span class="label">{{ line.label.text }}</span>
-						</div>
-				</div>
+				<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
+
+				<text v-for="label in yAxisLabels" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" :fill="axisColor">{{ label.text }}</text>
+			</svg>
+
+			<svg x="0" :y="graphSize.height">
+				<svg x="10">
+					<line x1="0" y1="0" :x2="graphSize.width" y2="0" :stroke-width="axisWidth" :stroke="axisColor"/>
+					
+					<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
+				</svg>
+
+				<text class="x-label" v-for="label in xAxisLabels" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" :fill="axisColor">{{ label.text }}</text>			</svg>
+		</svg>
+
+		<div class="legend">
+			<div
+				v-for="line in lines"
+				:key="line.id"
+				class="line"
+				:style="{ color: line.label.color }"
+				@mouseenter="handleLineLegendEntryMouseEnter(line)"
+				@mouseleave="handleLineLegendEntryMouseLeave(line)">
+
+					<div class="info">
+						<span class="label">{{ line.label.text }}</span>
+					</div>
 			</div>
 		</div>
 	</section>
@@ -329,19 +326,12 @@ export default {
 
 .graph {
 	display: flex;
-	flex-direction: column;
-	padding: 16px 16px 32px 16px;
-}
-
-.upper {
-	display: flex;
-	margin-bottom: 32px;
 }
 
 .graphic {
-	flex-grow: 1;
 	max-height: 100%;
-	margin-right: 32px;
+	margin-right: 16px;
+	flex-grow: 1;
 }
 
 .legend {

@@ -10,7 +10,7 @@
     padding-bottom: 32px;
     padding-top: 0;
     font-weight: 900;
-    color: lighten($background-color, 70%);
+    color: $card-foreground-color;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-block-start: 0;

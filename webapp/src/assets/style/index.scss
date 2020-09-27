@@ -4,7 +4,9 @@ $accent-color: #e9fff0;
 
 $background-color: rgb(48, 64, 80);
 
-$special-font-family: Lobster
+$special-font-family: Lobster;
+
+$card-foreground-color: lighten($background-color, 70%);
 
 :export {
   primaryColor: $primary-color;
