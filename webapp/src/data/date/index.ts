@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { format, parse } from 'date-fns'
 
 export function formatDate(date: Date): string {
   return format(date, 'dd/MM/yyyy')
@@ -12,4 +12,6 @@ export function formatTime(date: Date): string {
   return format(date, 'HH:mm')
 }
 
-
+export function parseDatetime(datetime: string): Date {
+  return parse(datetime, 'dd/MM/yyyy HH:mm', new Date())
+}

@@ -1,5 +1,5 @@
 import { SensorArrayData, SensorArrayInfo } from './SensorData'
-import { formatDatetime } from '~/data/date/format'
+import { formatDatetime } from '@/data/date'
 
 export default class DownloadPackager {
 

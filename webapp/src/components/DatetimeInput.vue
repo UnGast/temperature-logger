@@ -1,10 +1,10 @@
 <template>
-  <input type="text" class="datetime-input text-input" placeholder="tt.mm.jjjj hh::mm" :value="displayText"/>
+  <input type="text" class="datetime-input text-input" placeholder="tt.mm.jjjj hh::mm" :value="displayText" @input="handleInput"/>
 </template>
 
 <script>
-import { reactive, computed } from 'vue'
-import { formatDatetime } from '~/data/date/format'
+import { reactive, computed, watchEffect } from 'vue'
+import { formatDatetime, parseDatetime } from '~/data/date'
 
 export default {
   props: {
@@ -21,19 +21,28 @@ export default {
 
   },
   methods: {
+    handleInput(event) {
+      console.log("INPUT", )
+      this.displayText = event.target.value
+      let parsed = parseDatetime(event.target.value)
 
+      if (parsed instanceof Date) {
+        console.log('IS DATETIME', parsed)
+        this.$emit('update:modelValue', Math.floor(parsed.getTime() / 1000))
+      }
+    }
   },
   setup(props) {
     return {
-      ...setupDisplayText(props.modelValue * 1000)
+      ...setupDisplayText(props)
     }
   }
 }
 
-function setupDisplayText(initialValue) {
+function setupDisplayText(props) {
   
   const state = reactive({
-    displayText: format(initialValue)
+    displayText: format(props.modelValue)
   })
 
   function format(value) {
@@ -41,9 +50,14 @@ function setupDisplayText(initialValue) {
     if (!value) {
       return ''
     } else {
-      return formatDatetime(initialValue)
+      return formatDatetime(value * 1000)
     }
-  } 
+  }
+
+  watchEffect(() => props.modelValue, () => {
+    console.log("UPDATE POPRS", props.modelValue)
+    state.displayText = format(props.modelValue)
+  })
 
   return { ...state }
 }

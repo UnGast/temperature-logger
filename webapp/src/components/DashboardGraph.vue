@@ -39,23 +39,14 @@ import ButtonOptions from './ButtonOptions'
 
 export default {
   components: { Graph, DatetimeInput, ButtonOptions },
+  data() {
+
+    return {
+      timeframeIntervalStart: this.$store.state.timeframeSettings.interval.start,
+      timeframeIntervalEnd:this.$store.state.timeframeSettings.interval.end
+    }
+  },
   computed: {
-		timeframeIntervalStart: {
-			get() {
-				return this.$store.state.timeframeSettings.interval.start
-			},
-			set(value) {
-				this.$store.commit('setTimeframeIntervalStart', value)
-			}
-		},
-		timeframeIntervalEnd: {
-			get() {
-				return this.$store.state.timeframeSettings.interval.end
-			},
-			set(value) {
-				this.$store.commit('setTimeframeIntervalEnd', value)
-			}
-		},
 		selectedTimeframe: {
 			get()  {
 				return this.$store.state.selectedTimeframe
@@ -123,11 +114,25 @@ export default {
     }
   },
   methods: {
+    updateStoreTimeframeInterval() {
+      this.$store.commit('setTimeframeIntervalStart', this.timeframeIntervalStart)
+      this.$store.commit('setTimeframeIntervalEnd', this.timeframeIntervalEnd)
+    },
 		handleRequestFetchTimeframeIntervalData() {
+      this.updateStoreTimeframeInterval()
 			this.$store.dispatch('fetchTimeframeIntervalData')
     },
     handleRequestDownloadTimeframeIntervalData() {
+      this.updateStoreTimeframeInterval()
       this.$store.dispatch('downloadTimeframeIntervalData')
+    }
+  },
+  watch: {
+    '$store.state.timeframeSettings.interval.start'() {
+      this.timeframeIntervalStart = this.$store.state.timeframeSettings.interval.start
+    },
+    '$store.state.timeframeSettings.interval.end'() {
+      this.timeframeIntervalEnd = this.$store.state.timeframeSettings.interval.end
     }
   },
   setup() {

@@ -1,7 +1,7 @@
 import { createStore } from 'vuex'
 import chroma from 'chroma-js'
 import localforage from 'localforage'
-import { formatDatetime } from '~/data/date/format'
+import { formatDatetime } from '@/data/date'
 import DownloadPackager from '~/data/sensor/DownloadPackager'
 
 let sensorColorScale = chroma.scale(['yellow', 'lightgreen', 'lime', 'lightblue', 'orange']).mode('lch')
