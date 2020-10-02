@@ -141,6 +141,12 @@ export default {
 
 .dashboard-graph {
   padding: 32px;
+  display: flex;
+  flex-direction: column;
+
+  .heading {
+    margin-bottom: 24px;
+  }
 }
 
 .graph {

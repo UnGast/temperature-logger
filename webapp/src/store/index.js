@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 import chroma from 'chroma-js'
-
+import localforage from 'localforage'
 import { formatDatetime } from '~/data/date/format'
 import DownloadPackager from '~/data/sensor/DownloadPackager'
 
@@ -11,6 +11,8 @@ const store = createStore({
 	state() {
 
 		return {
+			serverHost: process.env.VUE_APP_DEFAULT_SERVER_HOST,
+			serverPort: process.env.VUE_APP_DEFAULT_SERVER_PORT,
 			socket: null,
 			connecting: false,
 			connected: false,
@@ -29,6 +31,12 @@ const store = createStore({
 	},
 
 	mutations: {
+		setServerHost(state, value) {
+			state.serverHost = value
+		},
+		setServerPort(state, value) {
+			state.serverPort = value
+		},
 		setSocket(state, socket) {
 			state.socket = socket
 		},
@@ -37,6 +45,10 @@ const store = createStore({
 		},
 		setConnected(state, value) {
 			state.connected = value
+		},
+		clearServerData(state) {
+			state.sensorData = {}
+			state.sensorInfo = {}
 		},
 		setSensorInfo(state, sensorInfo) {
 			state.sensorInfo = {}
@@ -107,13 +119,34 @@ const store = createStore({
 
 	actions: {
 
+		async restoreSettings({ commit })  {
+
+			let storedServerSettings = await localforage.getItem('server')
+
+			if (storedServerSettings) {
+
+				commit('setServerHost', storedServerSettings.host)
+				commit('setServerPort', storedServerSettings.port)
+			}
+		},
+
+		async storeSettings({ state }) {
+
+			await localforage.setItem('server', {
+				host: state.serverHost,
+				port: state.serverPort
+			})
+		},
+
 		connect({ commit, dispatch, state }) {
 
-			if (state.connected || state.connecting) return
+			if (state.connecting) return
+
+			commit('clearServerData')
 
 			commit('setConnecting', true)
 
-			let socket = new WebSocket('ws://localhost:8000')
+			let socket = new WebSocket(`ws://${state.serverHost}:${state.serverPort}`)
 
 			socket.onopen = () => {
 
@@ -220,7 +253,16 @@ const store = createStore({
 
 			a.remove()
 		}
-	}
+	},
+})
+
+store.watch(state => {
+
+	return `${state.serverHost}${state.serverPort}`
+
+}, () => {
+
+	store.dispatch('storeSettings')
 })
 
 export default store

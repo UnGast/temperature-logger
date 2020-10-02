@@ -9,4 +9,7 @@ app.use(store)
 
 app.mount("#app")
 
-store.dispatch("connect")
+store.dispatch('restoreSettings').then(() => {
+
+  store.dispatch("connect")
+})

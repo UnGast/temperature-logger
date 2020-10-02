@@ -21,6 +21,11 @@
   outline: 0;
   border-radius: 3px;
 
+  &.small {
+    font-size: .8rem;
+    padding: 6px 8px;
+  }
+
   &:hover {
     background: linear-gradient(to bottom, lighten($grad-start, 5%), lighten($grad-end, 5%));
   }

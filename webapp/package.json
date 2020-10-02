@@ -11,6 +11,7 @@
     "chroma-js": "^2.1.0",
     "core-js": "^3.6.5",
     "date-fns": "^2.16.1",
+    "localforage": "^1.9.0",
     "node-sass": "^4.14.1",
     "raw-loader": "^4.0.1",
     "sass-loader": "^10.0.2",
