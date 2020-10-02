@@ -1,5 +1,5 @@
 <template>
-  <section class="dashboard-graph-card card">
+  <section class="dashboard-graph card">
     <h1 class="heading">Graph</h1>
 
 		<div class="content">
@@ -139,7 +139,7 @@ export default {
 <style lang="scss" scoped>
 @import 'style';
 
-.dashboard-graph-card {
+.dashboard-graph {
   padding: 32px;
 }
 

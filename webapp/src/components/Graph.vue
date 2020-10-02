@@ -347,16 +347,22 @@ export default {
 .legend {
 	display: flex;
 	flex-direction: column;
+	background: darken($background-color, 3%);
+	border-radius: 5px;
+	align-self: flex-start;
 
 	.line {
-		margin-bottom: 8px;
-		padding: 8px;
+		padding: 12px;
 		max-width: 100px;
 		font-size: .8rem;
 		font-weight: bold;
 		display: flex;
 		align-items: center;
-		background: darken($background-color, 5%);
+		border-bottom: 1px solid lighten($background-color, 10%);
+
+		&:last-child {
+			border-bottom: 0;
+		}
 
 		.info {
 			margin-right: 8px;

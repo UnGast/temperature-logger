@@ -6,9 +6,9 @@
 
         <div class="body">
 
-            <dashboard-graph-card/>
+            <dashboard-graph/>
 
-            <sensor-info/>
+            <dashboard-sensor-info/>
 
         </div>
 
@@ -18,12 +18,12 @@
 
 <script>
 import StatusBar from './StatusBar'
-import SensorInfo from './SensorInfo'
-import DashboardGraphCard from './DashboardGraphCard'
+import DashboardSensorInfo from './DashboardSensorInfo'
+import DashboardGraph from './DashboardGraph'
 
 export default {
     
-    components: { StatusBar, SensorInfo, DashboardGraphCard },
+    components: { StatusBar, DashboardSensorInfo, DashboardGraph },
 }
 </script>
 
@@ -39,15 +39,14 @@ export default {
     //padding: 16px;
     display: flex;
     flex-direction: column;
+}
 
-    .sensor-info {
-        flex-basis: 20%;
-        flex-grow: 0;
-    }
+.dashboard-graph {
+    border-bottom: 1px solid lighten($background-color, 10%);
+    padding-bottom: 64px;
+}
 
-    .graph {
-        align-self: stretch;
-        margin-bottom: 1px;
-    }
+.dashboard-sensor-info {
+    padding-top: 48px;
 }
 </style>
