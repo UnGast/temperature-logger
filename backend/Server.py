@@ -98,7 +98,7 @@ class WebsocketProtocol:
 
                 await self.socket.send(json.dumps({
                     "type": "stream_value",
-                    "values": self.sensor_manager.get_latest_values()
+                    "values": await self.sensor_manager.get_latest_values()
                 }))
 
                 await asyncio.sleep(interval)

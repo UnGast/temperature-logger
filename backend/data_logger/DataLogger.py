@@ -7,6 +7,10 @@ class DataLogger(ABC):
 
     self.sensor_manager = sensor_manager
 
+    if interval < 1:
+
+      raise Exception("DataLogger interval cannot be smaller than 1")
+
     self.interval = interval
 
   @abstractmethod

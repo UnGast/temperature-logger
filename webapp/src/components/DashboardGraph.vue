@@ -19,7 +19,7 @@
             
             <datetime-input v-model="timeframeIntervalEnd"/>
 
-            <button class="fetch-timeframe-interval-button button" @click="handleRequestFetchTimeframeIntervalData">Laden</button>
+            <button class="fetch-timeframe-interval-button button" @click="handleRequestFetchTimeframeIntervalData">Anzeigen</button>
 
             <button class="button" @click="handleRequestDownloadTimeframeIntervalData">Herunterladen</button>
           </template>
