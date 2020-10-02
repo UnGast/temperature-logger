@@ -1,6 +1,6 @@
 interface GraphDataPoint {
-  x: Number
-  y: Number
+  x: number
+  y: number
 }
 
 interface GraphData {
@@ -8,8 +8,8 @@ interface GraphData {
 }
 
 interface Bounds {
-  xMin: Number
-  xMax: Number
-  yMin: Number
-  yMax: Number
+  xMin: number
+  xMax: number
+  yMin: number
+  yMax: number
 }

@@ -6,6 +6,17 @@ export default class GraphDataManager {
 
   get dataBounds(): Bounds {
 
+    if (Object.values(this.data).length === 0) {
+
+      return {
+
+        xMax: 0,
+        xMin: 0,
+        yMax: 0,
+        yMin: 0
+      }
+    }
+
     let bounds: Bounds = {
       yMax: -Number.MAX_VALUE,
       yMin: Number.MAX_VALUE,
@@ -39,8 +50,8 @@ export default class GraphDataManager {
     let bounds: Bounds = {
       xMin,
       xMax,
-      yMin: Number.MAX_VALUE,
-      yMax: -Number.MAX_VALUE
+      yMin: Number.POSITIVE_INFINITY,
+      yMax: Number.NEGATIVE_INFINITY
     }
 
     for (let dataPointList of Object.values(this.data)) {
@@ -60,6 +71,16 @@ export default class GraphDataManager {
           }
         }
       }
+    }
+
+    if (!isFinite(bounds.yMin)) {
+
+      bounds.yMin = 0
+    }
+
+    if (!isFinite(bounds.yMax)) {
+
+      bounds.yMax = 0
     }
 
     return bounds

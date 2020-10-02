@@ -39,19 +39,19 @@
 			<svg>
 				<line x1="10" y1="0" x2="10" :y2="graphSize.height" :stroke-width="axisWidth" :stroke="axisColor"/>
 
-				<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
+				<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisTicks" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
 
-				<text v-for="label in yAxisLabels" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" :fill="axisColor">{{ label.text }}</text>
+				<text v-for="label in yAxisTicks" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" :fill="axisColor">{{ label.text }}</text>
 			</svg>
 
 			<svg x="0" :y="graphSize.height">
 				<svg x="10">
 					<line x1="0" y1="0" :x2="graphSize.width" y2="0" :stroke-width="axisWidth" :stroke="axisColor"/>
 					
-					<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisLabels" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
+					<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisTicks" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
 				</svg>
 
-				<text class="x-label" v-for="label in xAxisLabels" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" :fill="axisColor">{{ label.text }}</text>			</svg>
+				<text class="x-label" v-for="label in xAxisTicks" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" :fill="axisColor">{{ label.text }}</text>			</svg>
 		</svg>
 
 		<div class="legend">
@@ -134,11 +134,15 @@ export default {
 		},
 		graphScale() {
 
+			let dataXLength = Math.max(1, this.visibleArea.xMax - this.visibleArea.xMin)
+
+			let dataYLength = Math.max(1, this.visibleArea.yMax - this.visibleArea.yMin)
+
 			return {
 
-				x: this.graphSize.width / (this.visibleArea.xMax - this.visibleArea.xMin),
+				x: this.graphSize.width / dataXLength,
 
-				y: this.graphSize.height / (this.visibleArea.yMax - this.visibleArea.yMin)
+				y: this.graphSize.height / dataYLength
 			}
 		},
 		maxVisiblePoints() {
@@ -197,7 +201,7 @@ export default {
 					stepSize = maxSampleCount / this.maxVisiblePoints
 				}
 
-				for (let i = sampleStartIndex; i <= sampleEndIndex; i += stepSize) {
+				for (let i = Math.max(0, sampleStartIndex); i <= sampleEndIndex; i += stepSize) {
 
 					var flooredIndex = Math.floor(i)
 
@@ -226,7 +230,7 @@ export default {
 
 			return lines
 		},
-		yAxisLabels() {
+		yAxisTicks() {
 
 			var labels = []
 
@@ -234,22 +238,25 @@ export default {
 
 			var labelCount = 10
 
-			var stepSize = Math.floor(visibleAxisLength / labelCount)
+			var stepSize = visibleAxisLength / labelCount
 
 			var startValue = Math.floor(this.visibleArea.yMin)
 
 			for (var i = 0; i < labelCount; i++) {
+
 				let value = startValue + i * stepSize
 
 				labels.push({
+					
 					text: value,
+
 					y: this.graphSize.height - i * stepSize * this.graphScale.y
 				})
 			}
 			
 			return labels
 		},
-		xAxisLabels() {
+		xAxisTicks() {
 
 			var labels = []
 
@@ -266,10 +273,13 @@ export default {
 				let value = startValue + i * stepSize
 
 				let date = new Date(0)
+
 				date.setUTCSeconds(value)
 
 				labels.push({
+
 					text: date.toLocaleTimeString(),
+
 					x: i * stepSize * this.graphScale.x
 				})
 			}
