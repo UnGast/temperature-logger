@@ -18,11 +18,13 @@ class DefaultDataLogger(DataLogger):
 
     self.current_file_timestamp = None
 
-    self.file_interval = 2 # after how many seconds start a new file
+    self.file_interval = 5 # after how many seconds start a new file
 
     self.opened_file = None
 
     self.opened_file_timestamp = None
+
+    self.previous_stored_sensor_values = None
 
   def __del__(self):
 
@@ -42,11 +44,26 @@ class DefaultDataLogger(DataLogger):
 
       current_timestamp = int(time.time())
 
-      new_data_line = await self.get_current_sensor_data_csv_line()
+      current_sensor_values = await self.get_current_sensor_data()
 
-      await self.ensure_timestamp_containing_file_opened(current_timestamp)
-      
-      self.opened_file.write(new_data_line)
+      sensor_values_changed = current_sensor_values != self.previous_stored_sensor_values
+
+      new_file_created = False
+
+      # returned true means a new file was created
+      if await self.ensure_timestamp_containing_file_opened(current_timestamp):
+
+        self.opened_file.write(self.get_log_file_csv_header())
+
+        new_file_created = True
+
+      if new_file_created or sensor_values_changed:
+
+        new_csv_line = await self.make_sensor_values_csv_line(current_timestamp, current_sensor_values)
+
+        self.opened_file.write(new_csv_line)
+
+        self.previous_stored_sensor_values = current_sensor_values
 
       await asyncio.sleep(self.interval)
 
@@ -95,7 +112,7 @@ class DefaultDataLogger(DataLogger):
 
     return file_timestamp
 
-  async def ensure_timestamp_containing_file_opened(self, contained_timestamp):
+  async def ensure_timestamp_containing_file_opened(self, contained_timestamp) -> bool:
 
     containing_file_timestamp = await self.get_containing_file_timestamp(contained_timestamp)
 
@@ -111,11 +128,13 @@ class DefaultDataLogger(DataLogger):
 
         os.makedirs(filepath.parent)
 
+      file_existed = filepath.exists()
+
       self.opened_file = open(filepath, 'a')
 
       self.opened_file_timestamp = containing_file_timestamp
 
-      self.opened_file.write(self.get_log_file_csv_header())
+      return not file_existed
 
   def get_filepath_for_timestamp(self, timestamp):
 
@@ -127,17 +146,21 @@ class DefaultDataLogger(DataLogger):
 
     return await self.sensor_manager.get_latest_values()
 
-  async def get_current_sensor_data_csv_line(self):
-
-    data = await self.get_current_sensor_data()
+  async def make_sensor_values_csv_line(self, timestamp, values):
 
     csv = ""
 
+    csv += str(timestamp)
+
+    csv += ","
+
     for sensor in self.sensor_manager.sensors:
 
-      sensor_data = data[sensor.id]
+      sensor_value = values[sensor.id]
+
+      csv += str(sensor_value)
         
-      csv += str(sensor_data['value']) + ","
+      csv += ","
 
     csv += "\n"
 
@@ -145,7 +168,9 @@ class DefaultDataLogger(DataLogger):
 
   def get_log_file_csv_header(self) -> str:
 
-    csv = ""
+    csv = "timestamp(unix)"
+
+    csv += ","
 
     for sensor in self.sensor_manager.sensors:
 

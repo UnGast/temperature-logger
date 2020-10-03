@@ -8,8 +8,10 @@ class Mock(sensors.Sensor):
 
       super().__init__(id=id, type="Mock", position=position, accuracy=0.5)
 
-  def last_value(self) -> { 'timestamp': int, 'value': float }:
+  def last_value(self) -> float:
 
       time = datetime.now()
 
-      return { 'timestamp': time.timestamp(), 'value': math.sin(time.timestamp() + self.id) * 20 * self.id }
+      value = round(math.sin(time.timestamp() * 0.001 + self.id) * (20 + self.id * 2), 1)
+
+      return value

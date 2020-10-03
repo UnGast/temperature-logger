@@ -10,6 +10,6 @@ class Sensor:
 
         self.accuracy = accuracy
 
-    def read(self):
+    def read(self) -> float:
 
         print("READ NOT IMPLEMENTED FOR SENSOR: {} with id {} at {}".format(self.type, self.id, self.position))
