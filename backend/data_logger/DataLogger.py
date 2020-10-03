@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 from abc import ABC, abstractmethod
 
 class DataLogger(ABC):
@@ -19,9 +20,17 @@ class DataLogger(ABC):
     pass
 
   @abstractmethod
-  async def get_past_data(self, start: int, end: int) -> [{'sensor_id': int, 'timestamp': int, 'value': float}]:
+  async def get_past_data(self, start: int, end: int):
     """
     get historical data between two unix timestamps
+    """
+
+    pass
+
+  @abstractmethod
+  async def get_files_containing_interval(self, start: int, end: int) -> [Path]:
+    """
+    returns the file paths that intersect with the given interval
     """
 
     pass

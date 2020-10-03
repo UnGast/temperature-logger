@@ -4,6 +4,7 @@ import os
 import math
 from pathlib import Path
 from .DataLogger import DataLogger
+from .CSVFileManager import CSVFileManager, Column as CSVColumn
 from SensorManager import SensorManager
 
 class DefaultDataLogger(DataLogger):
@@ -13,12 +14,18 @@ class DefaultDataLogger(DataLogger):
     super().__init__(sensor_manager=sensor_manager, interval=interval)
 
     self.directory = Path(directory)
+    
+    self.csv_file_manager = CSVFileManager(columns=[
+
+      CSVColumn(data_key='timestamp', title='timestamp(unix)', type=int)
+      
+    ] + [CSVColumn(data_key=sensor.id, title="{}:{}:{}:{}".format(sensor.id, sensor.type, sensor.position, sensor.accuracy), type=float) for sensor in self.sensor_manager.sensors])
 
     self.log_start_timestamp = None
 
     self.current_file_timestamp = None
 
-    self.file_interval = 5 # after how many seconds start a new file
+    self.file_interval = 20 # after how many seconds start a new file
 
     self.opened_file = None
 
@@ -65,15 +72,57 @@ class DefaultDataLogger(DataLogger):
 
         self.previous_stored_sensor_values = current_sensor_values
 
+      past_data = await self.get_past_data(current_timestamp - 10, current_timestamp)
+
       await asyncio.sleep(self.interval)
 
   async def get_past_data(self, start, end):
 
-    return []
+    log_files = await self.get_files_containing_interval(start, end)
+
+    past_data = []
+
+    for file in log_files:
+
+      file_data = self.csv_file_manager.read_file(file)
+
+      for line_data in file_data:
+
+        timestamp = int(line_data['timestamp'])
+
+        if timestamp >= start and timestamp <= end:
+
+          past_data.append(line_data)
+
+    return past_data
+
+  async def get_files_containing_interval(self, start: int, end: int):
+
+    log_files = await self.get_log_files()
+
+    filtered_files = []
+    
+    for file in log_files:
+
+      timestamps = self.get_log_file_timestamps(file)
+
+      if (timestamps['start'] >= start and timestamps['start'] <= end) \
+        or (timestamps['end'] >= start and timestamps['end'] <= end) \
+          or (timestamps['start'] <= start and timestamps['end'] >= end):
+
+            filtered_files.append(file)
+
+    return filtered_files
 
   async def get_log_files(self):
 
     return list(self.directory.glob('*.csv'))
+
+  def get_log_file_timestamps(self, file_path) -> { 'start', 'end' }:
+
+    parts = file_path.stem.split('-')
+
+    return { 'start': int(parts[0]), 'end': int(parts[1]) }
 
   """
   Returns the timestamp of the first log file.
@@ -92,7 +141,7 @@ class DefaultDataLogger(DataLogger):
 
       interval_string = file.stem
 
-      interval_start = int(interval_string.split('-')[0])
+      interval_start = self.get_log_file_timestamps(file)['start'] #int(interval_string.split('-')[0])
 
       if min_interval_start is None or interval_start < min_interval_start:
 

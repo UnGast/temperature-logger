@@ -27,3 +27,7 @@ class MockDataLogger(DataLogger):
       data.append(data_entry)
 
     return data
+
+  async def get_files_containing_interval(self, start: int, end: int):
+
+    return []

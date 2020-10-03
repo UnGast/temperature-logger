@@ -176,13 +176,12 @@ export default {
   }
 
   .settings {
+    margin-right: -16px;
+    margin-bottom: -16px;
     
-    .datetime-input {
+    > * {
       margin-right: 16px;
-    }
-
-    .button {
-      margin-right: 16px;
+      margin-bottom: 16px;
     }
   }
 }
