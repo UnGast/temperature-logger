@@ -18,8 +18,12 @@ class MockDataLogger(DataLogger):
 
     for i in range(start, end, 10):
 
-      for sensor in self.sensor_manager.sensors:
+      data_entry = { 'timestamp': i }
 
-        data.append({ "sensorId": sensor.id, "timestamp": i, "value": math.sin(i) })
+      for sensor in self.sensor_manager.sensors:
+        
+        data_entry[sensor.id] = math.sin(i)
+
+      data.append(data_entry)
 
     return data

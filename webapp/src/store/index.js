@@ -93,14 +93,24 @@ const store = createStore({
 
 			for (let timeValue of values) {
 
-				if (!state.sensorData[timeValue.sensorId]) {
-					state.sensorData[timeValue.sensorId] = []
-				}
+				let timestamp = timeValue['timestamp']
 
-				state.sensorData[timeValue.sensorId].push({
-					timestamp: timeValue.timestamp,
-					value: timeValue.value
-				})
+				for (let [sensorId, value] of Object.entries(timeValue)) {
+				
+					if (sensorId === 'timestamp') {
+
+						continue
+					}
+
+					if (!state.sensorData[sensorId]) {
+						state.sensorData[sensorId] = []
+					}
+
+					state.sensorData[sensorId].push({
+						timestamp: timestamp,
+						value: value
+					})
+				}
 			}
 
 			for (let timeValues of Object.values(state.sensorData)) {
