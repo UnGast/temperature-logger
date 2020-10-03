@@ -79,6 +79,8 @@ class DefaultDataLogger(DataLogger):
       await asyncio.sleep(self.interval)
 
   async def get_past_data(self, start, end):
+      
+    print("GET PAST DATA IN LOGGER", start, end)
 
     log_files = await self.get_files_containing_interval(start, end)
 

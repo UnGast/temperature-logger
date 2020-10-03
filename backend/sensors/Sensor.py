@@ -9,6 +9,15 @@ class Sensor:
         self.position = position
 
         self.accuracy = accuracy
+        
+    def get_info(self):
+        
+        return {
+            'id': self.id,
+            'type': self.type,
+            'position': self.position,
+            'accuracy': self.accuracy
+        }
 
     def read(self) -> float:
 
