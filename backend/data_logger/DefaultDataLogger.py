@@ -9,7 +9,7 @@ from SensorManager import SensorManager
 
 class DefaultDataLogger(DataLogger):
 
-  def __init__(self, sensor_manager: SensorManager, interval: int, directory: str):
+  def __init__(self, sensor_manager: SensorManager, interval: int, file_interval: int, directory: str):
 
     super().__init__(sensor_manager=sensor_manager, interval=interval)
 
@@ -25,7 +25,11 @@ class DefaultDataLogger(DataLogger):
 
     self.current_file_timestamp = None
 
-    self.file_interval = 20 # after how many seconds start a new file
+    if file_interval < 1:
+       
+       raise Exception("file interval cannot be smaller than 1")
+
+    self.file_interval = file_interval # after how many seconds start a new file
 
     self.opened_file = None
 
