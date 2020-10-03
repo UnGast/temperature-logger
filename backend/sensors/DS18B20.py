@@ -9,7 +9,7 @@ class DS18B20(sensors.Sensor):
 
         self.file = open("/sys/bus/w1/devices/{}/w1_slave".format(id), "r")
 
-    def read(self):
+    def read(self) -> float:
 
         raw_info = self.file.read()
         

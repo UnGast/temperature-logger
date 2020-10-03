@@ -8,7 +8,7 @@ class Mock(sensors.Sensor):
 
       super().__init__(id=id, type="Mock", position=position, accuracy=0.5)
 
-  def last_value(self) -> float:
+  def read(self) -> float:
 
       time = datetime.now()
 

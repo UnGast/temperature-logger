@@ -8,4 +8,4 @@ class SensorManager(ABC):
 
     async def get_latest_values(self):
 
-        return dict([(s.id, s.last_value()) for s in self.sensors])
+        return dict([(s.id, s.read()) for s in self.sensors])
