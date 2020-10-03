@@ -124,7 +124,7 @@ export default {
     },
     handleRequestDownloadTimeframeIntervalData() {
       this.updateStoreTimeframeInterval()
-      this.$store.dispatch('downloadTimeframeIntervalData')
+      this.$store.dispatch('initiateTimeframeIntervalContainingFilesDownload')
     }
   },
   watch: {

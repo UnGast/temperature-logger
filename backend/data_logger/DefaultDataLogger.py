@@ -72,8 +72,6 @@ class DefaultDataLogger(DataLogger):
 
         self.previous_stored_sensor_values = current_sensor_values
 
-      past_data = await self.get_past_data(current_timestamp - 10, current_timestamp)
-
       await asyncio.sleep(self.interval)
 
   async def get_past_data(self, start, end):

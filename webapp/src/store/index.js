@@ -174,7 +174,7 @@ const store = createStore({
 
 			socket.onmessage = message => {
 
-				dispatch('processMessage', JSON.parse(message.data))
+				dispatch('processMessage', message.data)
 			}
 
 			socket.onclose = socket.onerror = (error) => {
@@ -203,21 +203,27 @@ const store = createStore({
 			}))
 		},
 
-		processMessage({ commit }, message) {
+		processMessage({ commit, dispatch }, message) {
 
-			switch (message.type) {
+			let jsonMessage = JSON.parse(message)
+
+			switch (jsonMessage.type) {
 
 				case 'stream_value':
-					commit('storeStreamValues', { timestamp: message.timestamp, values: message.values })
+					commit('storeStreamValues', { timestamp: jsonMessage.timestamp, values: jsonMessage.values })
 					break
 
 				case 'sensor_info':
-					commit('setSensorInfo', message.sensors)
-					commit('setSelectedSensorIds', message.sensors.map(sensor => sensor.id))
+					commit('setSensorInfo', jsonMessage.sensors)
+					commit('setSelectedSensorIds', jsonMessage.sensors.map(sensor => sensor.id))
 					break
 				
 				case 'past_data':
-					commit('storeTimeframeIntervalValues', message.data)
+					commit('storeTimeframeIntervalValues', jsonMessage.data)
+					break
+
+				case 'data_file':
+					dispatch('downloadAsFile', jsonMessage)
 					break
 			}
 		},
@@ -231,9 +237,18 @@ const store = createStore({
 			}))
 		},
 
-		downloadTimeframeIntervalData({ state }) {
+		initiateTimeframeIntervalContainingFilesDownload({ state }) {
 
-			let blob = DownloadPackager.pack(state.sensorData, state.sensorInfo)
+			state.socket.send(JSON.stringify({
+				action: 'get_files_containing_interval',
+				start: state.timeframeSettings.interval.start,
+				end: state.timeframeSettings.interval.end
+			}))
+		},
+
+		downloadAsFile(_, { filename, contents }) {
+
+			let blob = new Blob([contents])
 
 			let blobUrl = window.URL.createObjectURL(blob)
 
@@ -241,11 +256,7 @@ const store = createStore({
 
 			a.href = blobUrl
 
-			let startDate = new Date(state.timeframeSettings.interval.start)
-
-			let endDate = new Date(state.timeframeSettings.interval.end)
-
-			a.setAttribute('download', `sensor-data-${formatDatetime(startDate)}-${formatDatetime(endDate)}.csv`)
+			a.setAttribute('download', filename)
 
 			a.style.display = 'none'
 

@@ -75,6 +75,14 @@ class WebsocketProtocol:
 
           await self.send_past_data(start, end)
 
+        elif action == "get_files_containing_interval":
+          
+            start = int(payload["start"])
+
+            end = int(payload["end"])
+
+            await self.send_files_containing_interval(start, end)
+
         else:
 
             self.end_protocol_violation("unsupported action requested")
@@ -130,6 +138,20 @@ class WebsocketProtocol:
           "type": "past_data",
           "data": data
         }))
+
+    async def send_files_containing_interval(self, start: int, end: int):
+
+        files = await self.data_logger.get_files_containing_interval(start, end)
+
+        for file_path in files:
+
+            with open(file_path, 'r') as file:
+
+                await self.socket.send(json.dumps({
+                    "type": "data_file",
+                    "contents": file.read(),
+                    "filename": file_path.name
+                }))
 
 
 class Server:
