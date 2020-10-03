@@ -1,6 +1,7 @@
 import websockets
 import asyncio
 import json
+import time
 from SensorManager import SensorManager
 from data_logger import DataLogger
 
@@ -98,6 +99,7 @@ class WebsocketProtocol:
 
                 await self.socket.send(json.dumps({
                     "type": "stream_value",
+                    "timestamp": int(time.time()),
                     "values": await self.sensor_manager.get_latest_values()
                 }))
 
