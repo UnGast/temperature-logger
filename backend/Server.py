@@ -125,7 +125,7 @@ class WebsocketProtocol:
 
         await self.socket.send(json.dumps({
             "type": "sensor_info",
-            "sensors": [s.__dict__ for s in self.sensor_manager.sensors]
+            "sensors": [s.get_info() for s in self.sensor_manager.sensors]
         }))
 
     async def send_past_data(self, start: int, end: int):
@@ -138,6 +138,8 @@ class WebsocketProtocol:
           "type": "past_data",
           "data": data
         }))
+        
+        print("DID SEND PAST DATA")
 
     async def send_files_containing_interval(self, start: int, end: int):
 
