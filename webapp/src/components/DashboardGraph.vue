@@ -1,29 +1,18 @@
 <template>
   <section class="dashboard-graph card">
     <h1 class="heading">Graph</h1>
-
 		<div class="content">
       <graph :initialVisibleArea="graphVisibleArea" :data="graphData" :labels="graphLabels"/>
-
       <div class="timeframe-selection">
-
         <label class="label">Zeitraum</label>
-
         <button-options class="options" :options="[ { label: 'Neueste', value: 'latest' }, { label: 'Intervall', value: 'interval' } ]" v-model="selectedTimeframe"/>
-
         <div class="settings">
-
           <template v-if="selectedTimeframe === 'interval'">
-
             <datetime-input v-model="timeframeIntervalStart"/>
-            
             <datetime-input v-model="timeframeIntervalEnd"/>
-
             <button class="fetch-timeframe-interval-button button" @click="handleRequestFetchTimeframeIntervalData">Anzeigen</button>
-
             <button class="button" @click="handleRequestDownloadTimeframeIntervalData">Herunterladen</button>
           </template>
-          
         </div>
       </div>
     </div>

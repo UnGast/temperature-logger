@@ -73,10 +73,12 @@
 
 <script>
 import chroma from 'chroma-js'
+import { firstSignificantIndex, roundToSignificant } from '@/lib/utils/numbers'
 
 import variables from 'style'
 
 import GraphDataManager from '~/data/graph/GraphDataManager'
+import { sign } from 'crypto'
 
 export default {
 	props: {
@@ -112,118 +114,79 @@ export default {
 			return this.dataManager.dataBounds
 		},
 		visibleArea() {
-
 			var xMin = this.initialVisibleArea?.xMin || this.dataBounds.xMin
-
 			var xMax = this.initialVisibleArea?.xMax || this.dataBounds.xMax
-
 			var bounds = this.dataManager.getDataBoundsBetween(xMin, xMax)
-
 			var area = Object.assign({}, bounds, this.initialVisibleArea)
-			
 			return area
 		},
 		graphSize() {
-
 			return {
-
 				width: this.width - 10,
-
 				height: this.height - 10
 			}
 		},
 		graphScale() {
-
 			let dataXLength = Math.max(1, this.visibleArea.xMax - this.visibleArea.xMin)
-
 			let dataYLength = Math.max(1, this.visibleArea.yMax - this.visibleArea.yMin)
-
 			return {
-
 				x: this.graphSize.width / dataXLength,
-
 				y: this.graphSize.height / dataYLength
 			}
 		},
 		maxVisiblePoints() {
-			
 			return this.$refs.dataArea ? this.$refs.dataArea.getBoundingClientRect().width / 5 : 100
 		},
 		lines() {
 			let lines = []
 
 			for (let dataPointListId of Object.keys(this.data)) {
-
 				let dataPointList = this.data[dataPointListId]
-
 				let sampledDataPoints = []
-
 				let sampleStartIndex = null
-
 				let sampleEndIndex = null
 
 				for (let i = 0; i < dataPointList.length; i++) {
-
 					let dataPoint = dataPointList[i]
-
 					if (sampleStartIndex === null && dataPoint.x >= this.visibleArea.xMin) {
-
 						sampleStartIndex = Math.max(0, i - 1)
-
 					} else if (sampleEndIndex === null && dataPoint.x >= this.visibleArea.xMax) {
-				
 						sampleEndIndex = i
-
 						break
 					}
 				}
 
 				if (sampleStartIndex === null) {
-
 					sampleStartIndex = dataPointList.length - 1
 				}
 
 				if (sampleEndIndex === null) {
-
 					sampleEndIndex = dataPointList.length - 1
 				}
 
 				var maxSampleCount = sampleEndIndex - sampleStartIndex
-
 				var stepSize = 0
 
 				if (maxSampleCount <= this.maxVisiblePoints) {
-
 					stepSize = 1
-
 				} else {
-
 					stepSize = maxSampleCount / this.maxVisiblePoints
 				}
 
 				for (let i = Math.max(0, sampleStartIndex); i <= sampleEndIndex; i += stepSize) {
-
 					var flooredIndex = Math.floor(i)
-
 					var dataPoint = dataPointList[flooredIndex]
-
 					sampledDataPoints.push(dataPoint)
 				}
 
 				let label = this.labels[dataPointListId]
 
 				lines.push({
-
 					id: dataPointListId,
-
 					label,
-
 					opacity: this.highlightedLineId && this.highlightedLineId !== dataPointListId ? 0.2 : 1,
-
 					points: sampledDataPoints.map(dataPoint => {
-
 						return `${Math.floor(dataPoint.x - this.visibleArea.xMin) * this.graphScale.x},${Math.floor((dataPoint.y - this.visibleArea.yMin) * this.graphScale.y)}`
-
 					}).join(' ')
 				})
 			}
@@ -231,25 +194,20 @@ export default {
 			return lines
 		},
 		yAxisTicks() {
-
 			var labels = []
-
 			var visibleAxisLength = this.visibleArea.yMax - this.visibleArea.yMin
-
-			var labelCount = 10
-
-			var stepSize = visibleAxisLength / labelCount
-
+			var targetLabelCount = 10
+			var stepSize = visibleAxisLength / targetLabelCount
+			var significant = firstSignificantIndex(stepSize)
+			stepSize = roundToSignificant(stepSize, significant)
+			// apply the min with some value to prevent a following never ending loop when generating the labels
+			var labelCount = Math.min(targetLabelCount * 2, Math.round(visibleAxisLength / stepSize))
 			var startValue = Math.floor(this.visibleArea.yMin)
 
 			for (var i = 0; i < labelCount; i++) {
-
 				let value = startValue + i * stepSize
-
 				labels.push({
-					
-					text: value,
-
+					text: value.toPrecision(1),
 					y: this.graphSize.height - i * stepSize * this.graphScale.y
 				})
 			}
@@ -257,29 +215,18 @@ export default {
 			return labels
 		},
 		xAxisTicks() {
-
 			var labels = []
-
 			var visibleAxisLength = this.visibleArea.xMax - this.visibleArea.xMin
-			
 			var labelCount = 4
-
 			var stepSize = visibleAxisLength / labelCount
-
 			var startValue = this.visibleArea.xMin
 
 			for (var i = 0; i < labelCount; i++) {
-
 				let value = startValue + i * stepSize
-
 				let date = new Date(0)
-
 				date.setUTCSeconds(value)
-
 				labels.push({
-
 					text: date.toLocaleTimeString(),
-
 					x: i * stepSize * this.graphScale.x
 				})
 			}
