@@ -37,21 +37,29 @@
 			</svg>
 
 			<svg>
-				<line x1="10" y1="0" x2="10" :y2="graphSize.height" :stroke-width="axisWidth" :stroke="axisColor"/>
+				<line :x1="tickFontSize" y1="0" :x2="tickFontSize" :y2="graphSize.height" :stroke-width="axisWidth" :stroke="axisColor"/>
 
 				<line x1="7" :y1="label.y" x2="10" :y2="label.y" v-for="label in yAxisTicks" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
 
-				<text v-for="label in yAxisTicks" :key="label" :x="0" :y="label.y" font-size="3" transform="translate(0, 1)" :fill="axisColor">{{ label.text }}</text>
+				<text v-for="label in yAxisTicks" :key="label" :x="0" :y="label.y" :font-size="tickFontSize" transform="translate(0, 1)" :fill="axisColor">{{ label.text }}</text>
+				
+				<text v-if="showDataPointer" :x="0" :y="dataPointerTicks.y.y" :font-size="tickFontSize" transform="translate(0, 1)" :fill="axisColor">{{ dataPointerTicks.y.text }}</text>
 			</svg>
 
 			<svg x="0" :y="graphSize.height">
-				<svg x="10">
+				<svg :x="tickFontSize">
 					<line x1="0" y1="0" :x2="graphSize.width" y2="0" :stroke-width="axisWidth" :stroke="axisColor"/>
 					
 					<line :x1="label.x" :y1="0" :x2="label.x" :y2="3" v-for="label in xAxisTicks" :key="label.text" stroke-width="0.25" :stroke="axisColor"/>
 				</svg>
 
-				<text class="x-label" v-for="label in xAxisTicks" :key="label" text-anchor="middle" :x="label.x + 10" :y="7" font-size="3" :fill="axisColor">{{ label.text }}</text>			</svg>
+				<!-- need to place this outside of <svg x="10"> to avoid cutting off the first label on the left side -->
+				<text class="x-label" v-for="label in xAxisTicks" :key="label" text-anchor="middle" :x="label.x + tickFontSize" :y="tickFontSize" :font-size="tickFontSize" :fill="axisColor">{{ label.text }}</text>
+
+				<foreignObject v-if="showDataPointer" :x="dataPointerTicks.x.x + 10" y="0" :width="graphSize.width" :height="graphSize.height">
+					<span class="x-label" :style="{ background: 'red', color: 'white', fontSize: tickFontSize + 'px' }">WOW {{ dataPointerTicks.x.text }}</span>
+				</foreignObject>
+			</svg>
 		</svg>
 
 		<div class="legend">
@@ -99,6 +107,7 @@ export default {
 		return {
 			width: 200,
 			height: 100,
+			tickFontSize: 16,
 			dataPointerPosition: { x: 0, y: 0 },
 			showDataPointer: false,
 			strokeWidth: 0.2,
@@ -122,8 +131,8 @@ export default {
 		},
 		graphSize() {
 			return {
-				width: this.width - 10,
-				height: this.height - 10
+				width: this.width - this.tickFontSize,
+				height: this.height - this.tickFontSize
 			}
 		},
 		graphScale() {
@@ -232,6 +241,18 @@ export default {
 			}
 			
 			return labels
+		},
+		dataPointerTicks() {
+			return {
+				x: {
+					text: "wow",
+					x: 23
+				},
+				y: {
+					text: "wow",
+					y: 223
+				}
+			}
 		}
 	},
 	methods: {
@@ -260,7 +281,8 @@ export default {
 		updateAspectRatio() {
 			let bounds = this.$refs.graphic.getBoundingClientRect()
 			let aspectRatio = bounds.width / bounds.height
-			this.width = aspectRatio * this.height
+			this.width = bounds.width // aspectRatio * this.height
+			this.height = bounds.height
 		}
 	},
 	watch: {
