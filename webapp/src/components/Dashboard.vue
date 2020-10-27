@@ -1,29 +1,23 @@
 <template>
-
     <section class="dashboard">
-
         <status-bar/>
 
         <div class="body">
-
             <dashboard-graph/>
-
+            <dashboard-download-section/>
             <dashboard-sensor-info/>
-
         </div>
-
     </section>
-
 </template>
 
 <script>
 import StatusBar from './StatusBar'
 import DashboardSensorInfo from './DashboardSensorInfo'
 import DashboardGraph from './DashboardGraph'
+import DashboardDownloadSection from './DashboardDownloadSection'
 
 export default {
-    
-    components: { StatusBar, DashboardSensorInfo, DashboardGraph },
+    components: { StatusBar, DashboardSensorInfo, DashboardGraph, DashboardDownloadSection },
 }
 </script>
 
@@ -44,6 +38,10 @@ export default {
 .dashboard-graph {
     border-bottom: 1px solid lighten($background-color, 10%);
     padding-bottom: 64px;
+}
+
+.dashboard-download-section {
+    border-bottom: 1px solid lighten($background-color, 10%);
 }
 
 .dashboard-sensor-info {

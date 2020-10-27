@@ -1,61 +1,37 @@
 <template>
-  
   <section class="dashboard-sensor-info card">
-
     <div class="heading">
-
       <span>Sensoren</span>
-
     </div>
 
     <div class="content">
-
       <div class="sensor" v-for="sensor in Object.values(sensorInfo)" :key="sensor.id" @click="handleSensorClick(sensor)">
-        
         <div class="content-wrapper">
-        
-          <span class="type info">{{ sensor.type }}</span>
+          <span class="type info" :style="{ color: sensor.color }">{{ sensor.type }}</span>
 
           <table class="meta-info">
-
             <tbody>
-
               <tr class="field">
-
                 <td><label class="label">ID:</label></td><td><span class="id info">{{ sensor.id }}</span></td>
-
               </tr>
 
               <tr class="field">
-                  
                 <td><label class="label">Position:</label></td><td><span class="position info">{{ sensor.position }}</span></td>
-                  
               </tr>
 
               <tr class="field">
-                
                 <td><label class="label">Wert:</label></td><td><span class="latest-value info">{{ getLatestSensorValue(sensor) }}</span></td>
-
               </tr>
 
               <tr class="field">
-                
                 <td><label class="label">Genauigkeit:</label></td><td><span class="latest-value info">± {{ sensor.accuracy }}</span></td>
-
               </tr>
-
             </tbody>
-
           </table>
-
         </div>
-
       </div>
-
     </div>
-
   </section>
-
 </template>
 
 <script>

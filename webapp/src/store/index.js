@@ -141,87 +141,66 @@ const store = createStore({
 		},
 
 		connect({ commit, dispatch, state }) {
-
 			if (state.connecting) return
 
 			commit('clearServerData')
-
 			commit('setConnecting', true)
 
 			let socket = new WebSocket(`ws://${state.serverHost}:${state.serverPort}`)
-
 			socket.onopen = () => {
 
 				console.log('Connected to server.')
 
 				commit('setSocket', socket)
-				
 				commit('setConnecting', false)
-
 				commit('setConnected', true)
-
 				dispatch('fetchSensorInfo')
-
 				dispatch('fetchTimeframeIntervalData')
 
 				socket.send(JSON.stringify({
-
 					action: 'stream',
-
 					interval: 1
 				}))
 			}
 
 			socket.onmessage = message => {
-
 				dispatch('processMessage', message.data)
 			}
 
 			socket.onclose = socket.onerror = (error) => {
-
 				if (error) {
-					
 					socket.close()
 				}
 
 				commit('setConnected', false)
-
 				commit('setConnecting', false)
 
 				setTimeout(() => {
-
 					dispatch('connect')
-
 				}, state.reconnectInterval)
 			}
 		},
 
 		fetchSensorInfo({ commit, state }) {
-
 			state.socket.send(JSON.stringify({
 				action: 'get_sensor_info'
 			}))
 		},
 
 		processMessage({ commit, dispatch }, message) {
-
 			let jsonMessage = JSON.parse(message)
 
 			switch (jsonMessage.type) {
-
 				case 'stream_value':
 					commit('storeStreamValues', { timestamp: jsonMessage.timestamp, values: jsonMessage.values })
 					break
-
 				case 'sensor_info':
 					commit('setSensorInfo', jsonMessage.sensors)
 					commit('setSelectedSensorIds', jsonMessage.sensors.map(sensor => sensor.id))
 					break
-				
 				case 'past_data':
 					commit('storeTimeframeIntervalValues', jsonMessage.data)
 					break
-
 				case 'data_file':
 					dispatch('downloadAsFile', jsonMessage)
 					break
@@ -229,41 +208,34 @@ const store = createStore({
 		},
 
 		fetchTimeframeIntervalData({ state }) {
-
-			state.socket.send(JSON.stringify({
-				action: 'get_past_data',
-				start: state.timeframeSettings.interval.start,
-				end: state.timeframeSettings.interval.end
-			}))
+			if (state.timeframeSettings.interval.start < state.timeframeSettings.interval.end) {
+				state.socket.send(JSON.stringify({
+					action: 'get_past_data',
+					start: state.timeframeSettings.interval.start,
+					end: state.timeframeSettings.interval.end
+				}))
+			} else {
+				console.error('Tried to fetch interval where start is later than end.')
+			}
 		},
 
-		initiateTimeframeIntervalContainingFilesDownload({ state }) {
-
+		initiateIntervalContainingFilesDownload({ state }, interval) {
 			state.socket.send(JSON.stringify({
 				action: 'get_files_containing_interval',
-				start: state.timeframeSettings.interval.start,
-				end: state.timeframeSettings.interval.end
+				start: Math.floor(interval.start),
+				end: Math.floor(interval.end)
 			}))
 		},
 
 		downloadAsFile(_, { filename, contents }) {
-
 			let blob = new Blob([contents])
-
 			let blobUrl = window.URL.createObjectURL(blob)
-
 			let a = document.createElement('a')
-
 			a.href = blobUrl
-
 			a.setAttribute('download', filename)
-
 			a.style.display = 'none'
-
 			document.body.append(a)
-
 			a.click()
-
 			a.remove()
 		}
 	},

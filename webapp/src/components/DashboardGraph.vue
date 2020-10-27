@@ -11,7 +11,6 @@
             <datetime-input v-model="timeframeIntervalStart"/>
             <datetime-input v-model="timeframeIntervalEnd"/>
             <button class="fetch-timeframe-interval-button button" @click="handleRequestFetchTimeframeIntervalData">Anzeigen</button>
-            <button class="button" @click="handleRequestDownloadTimeframeIntervalData">Herunterladen</button>
           </template>
         </div>
       </div>
@@ -110,10 +109,6 @@ export default {
 		handleRequestFetchTimeframeIntervalData() {
       this.updateStoreTimeframeInterval()
 			this.$store.dispatch('fetchTimeframeIntervalData')
-    },
-    handleRequestDownloadTimeframeIntervalData() {
-      this.updateStoreTimeframeInterval()
-      this.$store.dispatch('initiateTimeframeIntervalContainingFilesDownload')
     }
   },
   watch: {
