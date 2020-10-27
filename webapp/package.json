@@ -13,6 +13,7 @@
   },
   "main": "background.js",
   "dependencies": {
+    "chart.js": "^2.9.4",
     "chroma-js": "^2.1.0",
     "core-js": "^3.6.5",
     "date-fns": "^2.16.1",
