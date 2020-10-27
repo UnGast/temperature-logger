@@ -69,9 +69,12 @@ export default {
       position: absolute;
       top: 0;
       left: 32px;
-      transform: translateY(-50%);
+      transform: translateY(calc(-50% - .1em)); // -.1em for better optical center
       background: $background-color;
       padding: 0 8px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      font-weight: bold;
     }
 
     &.interval {

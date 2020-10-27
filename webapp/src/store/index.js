@@ -201,7 +201,7 @@ const store = createStore({
 				case 'past_data':
 					commit('storeTimeframeIntervalValues', jsonMessage.data)
 					break
-				case 'data_file':
+				case 'log_file':
 					dispatch('downloadAsFile', jsonMessage)
 					break
 			}
@@ -221,7 +221,7 @@ const store = createStore({
 
 		initiateIntervalContainingFilesDownload({ state }, interval) {
 			state.socket.send(JSON.stringify({
-				action: 'get_files_containing_interval',
+				action: 'get_log_files_containing_interval',
 				start: Math.floor(interval.start),
 				end: Math.floor(interval.end)
 			}))
