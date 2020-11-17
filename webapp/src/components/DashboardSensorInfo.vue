@@ -1,5 +1,5 @@
 <template>
-  <section class="dashboard-sensor-info card">
+  <section class="dashboard-sensor-info dashboard-section">
     <div class="heading">
       <span>Sensoren</span>
     </div>
@@ -64,7 +64,7 @@ export default {
 
 $sensor-background: darken($background-color, 3%);
 
-.card {
+.dashboard-sensor-info {
   padding: 32px;
   background: $background-color;
   display: flex;
@@ -124,14 +124,6 @@ $sensor-background: darken($background-color, 3%);
       font-weight: bold;
       margin-right: 16px;
       text-transform: uppercase;
-    }
-
-    .field {
-      margin-bottom: 16px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
     }
   }
 }

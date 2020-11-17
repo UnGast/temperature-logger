@@ -1,5 +1,5 @@
 <template>
-  <section class="dashboard-graph card">
+  <section class="dashboard-graph dashboard-section">
     <h1 class="heading">Graph</h1>
 		<div class="content">
       <graph :initialVisibleArea="graphVisibleArea" :data="graphData" :labels="graphLabels"/>
@@ -152,7 +152,7 @@ export default {
 		text-transform: uppercase;
 		font-size: 1rem;
     margin-bottom: 24px;
-    color: $card-foreground-color;
+    color: $muted-foreground-color;
 	}
 	
 	.options {

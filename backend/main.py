@@ -15,41 +15,29 @@ arg_parser.add_argument("--port", help="which port should the server bind to", d
 args = arg_parser.parse_args()
 
 sensor_config_file_path = None
-
 data_logger_config_file_path = None
 
 if args.mock:
-
     sensor_config_file_path = Path.cwd()/"config/mock_sensors.yaml"
-
     data_logger_config_file_path = Path.cwd()/"config/mock_data_logger.yaml"
-
 else:
-
     sensor_config_file_path = args.sensors
-
     data_logger_config_file_path = args.logger
 
 if sensor_config_file_path is None:
-
     raise Exception("no sensors config file given")
 
 if data_logger_config_file_path is None:
-
     raise Exception("no data logger config file given")
  
 sensors = config.parse_sensor_config(sensor_config_file_path)
-
 sensor_manager = SensorManager(sensors)
 
 (DataLoggerClass, data_logger_arguments) = config.parse_data_logger_config(data_logger_config_file_path)
-
 data_logger = DataLoggerClass(sensor_manager=sensor_manager, **data_logger_arguments)
 
 print("initialized application with sensors:", sensors, "and data logger", data_logger)
 
 server = Server(sensor_manager, data_logger)
-
 asyncio.gather(server.serve(host=args.host, port=args.port), data_logger.log_loop())
-
 asyncio.get_event_loop().run_forever()

@@ -1,5 +1,5 @@
 <template>
-  <section class="dashboard-download-section card">
+  <section class="dashboard-download-section dashboard-section">
     <h1 class="heading">Download</h1>
     
     <div class="sections">

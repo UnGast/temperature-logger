@@ -6,6 +6,7 @@
             <dashboard-graph/>
             <dashboard-download-section/>
             <dashboard-sensor-info/>
+            <dashboard-server-meta-section/>
         </div>
     </section>
 </template>
@@ -15,13 +16,15 @@ import StatusBar from './StatusBar'
 import DashboardSensorInfo from './DashboardSensorInfo'
 import DashboardGraph from './DashboardGraph'
 import DashboardDownloadSection from './DashboardDownloadSection'
+import DashboardServerMetaSection from './DashboardServerMetaSection'
 
 export default {
-    components: { StatusBar, DashboardSensorInfo, DashboardGraph, DashboardDownloadSection },
+    components: { StatusBar, DashboardSensorInfo, DashboardGraph, DashboardDownloadSection, DashboardServerMetaSection },
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" s
+        DashboardServerMetaSectioncoped>
 @import "~/assets/style/index.scss";
 
 .dashboard {
@@ -35,13 +38,19 @@ export default {
     flex-direction: column;
 }
 
-.dashboard-graph {
+.dashboard-section {
     border-bottom: 1px solid lighten($background-color, 10%);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.dashboard-graph {
     padding-bottom: 64px;
 }
 
 .dashboard-download-section {
-    border-bottom: 1px solid lighten($background-color, 10%);
 }
 
 .dashboard-sensor-info {

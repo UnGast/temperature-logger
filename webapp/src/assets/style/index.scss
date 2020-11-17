@@ -1,12 +1,11 @@
 $primary-color: #74a0e7;
-
 $accent-color: #e9fff0;
-
 $background-color: rgb(41, 33, 49);
+$muted-foreground-color: lighten($background-color, 70%);
 
 $special-font-family: Lobster;
 
-$card-foreground-color: lighten($background-color, 70%);
+$dashboard-screen-spacing: 32px;
 
 :export {
   primaryColor: $primary-color;

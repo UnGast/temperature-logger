@@ -1,11 +1,7 @@
 - type: mock
-
   id: 0
-
   position: "somewhere over the rainbow"
 
 - type: mock
-
   id: 1
-
   position: "behind the oven"

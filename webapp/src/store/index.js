@@ -18,6 +18,7 @@ const store = createStore({
 			connected: false,
 			sensorInfo: {},
 			sensorData: {},
+			serverMeta: null,
 			reconnectInterval: 1000,
 			selectedSensorIds: new Set(),
 			selectedTimeframe: 'interval',
@@ -72,7 +73,6 @@ const store = createStore({
 		storeStreamValues(state, { timestamp, values }) {
 
 			for (let [sensorId, value] of Object.entries(values)) {
-
 				if (!state.sensorData[sensorId]) {
 					state.sensorData[sensorId] = []
 				}
@@ -90,15 +90,11 @@ const store = createStore({
 			state.timeframeSettings.interval.end = value
 		},
 		storeTimeframeIntervalValues(state, values) {
-
 			for (let timeValue of values) {
-
 				let timestamp = timeValue['timestamp']
 
 				for (let [sensorId, value] of Object.entries(timeValue)) {
-				
 					if (sensorId === 'timestamp') {
-
 						continue
 					}
 
@@ -116,24 +112,22 @@ const store = createStore({
 			for (let timeValues of Object.values(state.sensorData)) {
 				timeValues.sort((a, b) => a.timestamp - b.timestamp)
 			}
+		},
+		setServerMeta(state, meta) {
+			state.serverMeta = meta
 		}
 	},
 
 	actions: {
-
 		async restoreSettings({ commit })  {
-
 			let storedServerSettings = await localforage.getItem('server')
-
 			if (storedServerSettings) {
-
 				commit('setServerHost', storedServerSettings.host)
 				commit('setServerPort', storedServerSettings.port)
 			}
 		},
 
 		async storeSettings({ state }) {
-
 			await localforage.setItem('server', {
 				host: state.serverHost,
 				port: state.serverPort
@@ -156,6 +150,7 @@ const store = createStore({
 				commit('setConnected', true)
 				dispatch('fetchSensorInfo')
 				dispatch('fetchTimeframeIntervalData')
+				dispatch('fetchServerMeta')
 
 				socket.send(JSON.stringify({
 					action: 'stream',
@@ -181,9 +176,15 @@ const store = createStore({
 			}
 		},
 
-		fetchSensorInfo({ commit, state }) {
+		fetchSensorInfo({ state }) {
 			state.socket.send(JSON.stringify({
 				action: 'get_sensor_info'
+			}))
+		},
+
+		fetchServerMeta({ state }) {
+			state.socket.send(JSON.stringify({
+				action: "get_server_meta"
 			}))
 		},
 
@@ -203,6 +204,9 @@ const store = createStore({
 					break
 				case 'log_file':
 					dispatch('downloadAsFile', jsonMessage)
+					break
+				case 'server_meta':
+					commit('setServerMeta', jsonMessage.meta)
 					break
 			}
 		},
@@ -242,11 +246,8 @@ const store = createStore({
 })
 
 store.watch(state => {
-
 	return `${state.serverHost}${state.serverPort}`
-
 }, () => {
-
 	store.dispatch('storeSettings')
 })
 

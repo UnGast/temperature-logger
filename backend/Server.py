@@ -4,6 +4,7 @@ import json
 import time
 from SensorManager import SensorManager
 from data_logger import DataLogger
+import shutil
 
 class WebsocketProtocol:
     def __init__(self, socket, sensor_manager: SensorManager, data_logger: DataLogger):
@@ -55,6 +56,9 @@ class WebsocketProtocol:
 
         elif action == "get_all_log_files":
             await self.send_all_log_files()
+        
+        elif action == "get_server_meta":
+            await self.send_server_meta()
 
         else:
             self.end_protocol_violation("unsupported action requested")
@@ -96,7 +100,6 @@ class WebsocketProtocol:
           "type": "past_data",
           "data": data
         }))
-        print("DID SEND PAST DATA")
 
     async def send_log_files_containing_interval(self, start: int, end: int):
         files = await self.data_logger.get_log_files_containing_interval(start, end)
@@ -117,6 +120,20 @@ class WebsocketProtocol:
                     "contents": file.read(),
                     "filename": file_path.name
                 }))
+
+    async def send_server_meta(self):
+        total, used, free = shutil.disk_usage("/")
+        
+        await self.socket.send(json.dumps({
+            "type": "server_meta",
+            "meta": {
+                "disc": {
+                    "total": total,
+                    "used": used,
+                    "free": free
+                }
+            }
+        }))
 
 class Server:
     def __init__(self, sensor_manager: SensorManager, data_logger: DataLogger):
