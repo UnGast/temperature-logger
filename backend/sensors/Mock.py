@@ -12,6 +12,6 @@ class Mock(sensors.Sensor):
 
       time = datetime.now()
 
-      value = round(math.sin(time.timestamp() * 0.001 + self.id) * (20 + self.id * 2), 1)
+      value = round(math.sin(time.timestamp() * 0.1 + self.id) * 20, 1)
 
       return value
