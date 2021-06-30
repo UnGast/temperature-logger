@@ -136,44 +136,73 @@ const store = createStore({
 
 		connect({ commit, dispatch, state }) {
 			if (state.connecting) return
-
 			commit('clearServerData')
 			commit('setConnecting', true)
 
-			let socket = new WebSocket(`ws://${state.serverHost}:${state.serverPort}`)
-			socket.onopen = () => {
+			let resolved = false
 
-				console.log('Connected to server.')
-
-				commit('setSocket', socket)
-				commit('setConnecting', false)
-				commit('setConnected', true)
-				dispatch('fetchSensorInfo')
-				dispatch('fetchTimeframeIntervalData')
-				dispatch('fetchServerMeta')
-
-				socket.send(JSON.stringify({
-					action: 'stream',
-					interval: 1
-				}))
-			}
-
-			socket.onmessage = message => {
-				dispatch('processMessage', message.data)
-			}
-
-			socket.onclose = socket.onerror = (error) => {
-				if (error) {
-					socket.close()
-				}
-
-				commit('setConnected', false)
-				commit('setConnecting', false)
+			return new Promise((resolve, reject) => {
+				let socket = new WebSocket(`ws://${state.serverHost}:${state.serverPort}`)
 
 				setTimeout(() => {
-					dispatch('connect')
-				}, state.reconnectInterval)
-			}
+					if (socket.readyState != WebSocket.OPEN) {
+						if (!resolved) {
+							resolved = true
+							if (socket.readyState != WebSocket.CLOSED && socket.readyState != WebSocket.CLOSING) {
+								socket.close()
+							}
+							reject("initial connect timed out")
+						}
+					}
+				}, 2000)
+
+				socket.onopen = () => {
+
+					console.log('Connected to server.')
+
+					commit('setSocket', socket)
+					commit('setConnecting', false)
+					commit('setConnected', true)
+					dispatch('fetchSensorInfo')
+					dispatch('fetchTimeframeIntervalData')
+					dispatch('fetchServerMeta')
+
+					socket.send(JSON.stringify({
+						action: 'stream',
+						interval: 1
+					}))
+
+					if (!resolved) {
+						resolved = true
+						resolve()					
+					}
+				}
+
+				socket.onerror = (error) => {
+					socket.close()
+					if (!resolved) {
+						resolved = true
+						reject(error)
+					}
+				}
+
+				socket.onmessage = message => {
+					dispatch('processMessage', message.data)
+				}
+
+				socket.onclose = () => {
+					commit('setConnected', false)
+					commit('setConnecting', false)
+
+					setTimeout(() => {
+						try {
+							dispatch('connect')
+						} catch (e) {
+							console.error("error during automatic reconnect:", e) 
+						}
+					}, state.reconnectInterval)
+				}
+			})
 		},
 
 		fetchSensorInfo({ state }) {
