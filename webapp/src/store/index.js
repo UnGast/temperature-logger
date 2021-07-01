@@ -266,6 +266,12 @@ const store = createStore({
 			}))
 		},
 
+		initiateAllFilesDownload({ state }, interval) {
+			state.socket.send(JSON.stringify({
+				action: 'get_all_log_files'
+			}))
+		},
+
 		downloadAsFile(_, { filename, contents }) {
 			let blob = new Blob([contents])
 			let blobUrl = window.URL.createObjectURL(blob)

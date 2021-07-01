@@ -38,7 +38,7 @@ export default {
       this.$store.dispatch('initiateIntervalContainingFilesDownload', this.interval)
     },
     handleDownloadAllRequest() {
-
+      this.$store.dispatch('initiateAllFilesDownload')
     }
   }
 }
