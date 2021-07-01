@@ -116,7 +116,7 @@ class WebsocketProtocol:
                     "contents": file.read(),
                     "filename": file.name
                 }))
-                
+
             finally:
                 file.close()
 
@@ -164,5 +164,5 @@ class Server:
 
     async def serve(self, host="0.0.0.0", port=8000):
         print("starting server on {}:{}".format(host, port))
-        start_server = websockets.serve(self.serve_connection, host, port)
+        start_server = websockets.serve(self.serve_connection, host, port, origins=[None, '*'])
         await start_server
