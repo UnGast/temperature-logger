@@ -91,10 +91,10 @@ const store = createStore({
 		},
 		storeTimeframeIntervalValues(state, values) {
 			for (let timeValue of values) {
-				let timestamp = timeValue['timestamp']
+				let timestamp = timeValue['timestamp_unix']
 
 				for (let [sensorId, value] of Object.entries(timeValue)) {
-					if (sensorId === 'timestamp') {
+					if (sensorId.startsWith('timestamp')) {
 						continue
 					}
 
