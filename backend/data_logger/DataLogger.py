@@ -12,7 +12,7 @@ class DataLogger(ABC):
 
     self.csv_file_manager = CSVFileManager(columns=[
       CSVColumn(data_key='timestamp_unix', title='timestamp(unix)', type=int),
-      CSVColumn(data_key='timestamp_human', title='timestamp(human)', type=int)
+      CSVColumn(data_key='timestamp_human', title='timestamp(human)', type=str)
     ] + [CSVColumn(data_key=sensor.id, title="{}:{}:{}:{}".format(sensor.id, sensor.type, sensor.position, sensor.accuracy), type=float) for sensor in self.sensor_manager.sensors])
 
     if interval < 1:
@@ -58,6 +58,7 @@ class DataLogger(ABC):
       sensor_value = values[sensor.id]
       csv += str(sensor_value)
       csv += ","
+    csv = csv[:-1] # remove last unnecessary separator
     csv += "\n"
 
     return csv

@@ -41,7 +41,7 @@ class DefaultDataLogger(DataLogger):
 
       # returned true means a new file was created
       if await self.ensure_timestamp_containing_file_opened(current_timestamp):
-        self.opened_file.write(self.csv_file_manager.get_csv_header() + '/n')
+        self.opened_file.write(self.csv_file_manager.get_csv_header() + '\n')
         new_file_created = True
 
       if new_file_created or sensor_values_changed:
@@ -59,10 +59,13 @@ class DefaultDataLogger(DataLogger):
       file_data = self.csv_file_manager.read_file(file)
 
       for line_data in file_data:
-        timestamp = int(line_data['timestamp_unix'])
+        try:
+            timestamp = int(line_data['timestamp_unix'])
 
-        if timestamp >= start and timestamp <= end:
-          past_data.append(line_data)
+            if timestamp >= start and timestamp <= end:
+              past_data.append(line_data)
+        except Exception as e:
+            print('warning could not read line in file data', line_data, 'because:', e)
 
     return past_data
 
