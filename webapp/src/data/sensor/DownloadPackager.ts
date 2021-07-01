@@ -2,29 +2,21 @@ import { SensorArrayData, SensorArrayInfo } from './SensorData'
 import { formatDatetime } from '@/data/date'
 
 export default class DownloadPackager {
-
   static pack(data: SensorArrayData, info: SensorArrayInfo): Blob {
-    
     var csv = ''
-
     csv += 'timestamp,'
 
     let timestamps = new Set<number>()
-
     let dataByTimestamp: { [key: number]: { [key: string]: number } } = {}
 
     for (let sensorId of Object.keys(data)) {
-
       let sensorInfo = info[sensorId]
 
       csv += 'temperature(degC):'
 
       if (sensorInfo) {
-
         csv += `${sensorInfo.id}:${sensorInfo.type}:${sensorInfo.position}`
-
       } else {
-
         csv += `${sensorId}:noinfo`
       }
 
@@ -33,11 +25,8 @@ export default class DownloadPackager {
       let sensorDataPoints = data[sensorId]
 
       for (let dataPoint of sensorDataPoints) {
-        
         if (!dataByTimestamp[dataPoint.timestamp]) {
-
           timestamps.add(dataPoint.timestamp)
-
           dataByTimestamp[dataPoint.timestamp] = {}
         }
 
@@ -50,11 +39,9 @@ export default class DownloadPackager {
     let sortedTimestamps = Array.from(timestamps).sort((a, b) => a - b)
 
     for (let timestamp of sortedTimestamps) {
-
       csv += formatDatetime(new Date(timestamp * 1000), true) + ','
 
       for (let sensorId of Object.keys(data)) {
-
         csv += dataByTimestamp[timestamp][sensorId] + ','
       }
 

@@ -1,13 +1,8 @@
 <template>
-  
   <section class="app">
-
     <div style="display:none" v-html="iconSvg"></div>
-
     <dashboard/>
-
   </section>
-
 </template>
 
 <script>

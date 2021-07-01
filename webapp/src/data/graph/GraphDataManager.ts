@@ -1,5 +1,4 @@
 export default class GraphDataManager {
-
   constructor(public data: GraphData) {
     
   }
@@ -55,18 +54,13 @@ export default class GraphDataManager {
     }
 
     for (let dataPointList of Object.values(this.data)) {
-
       for (let dataPoint of dataPointList) {
-
         if (dataPoint.x >= xMin && dataPoint.x <= xMax) {
-
           if (dataPoint.y < bounds.yMin) {
-
             bounds.yMin = dataPoint.y
           }
 
           if (dataPoint.y > bounds.yMax) {
-
             bounds.yMax = dataPoint.y
           }
         }
@@ -74,12 +68,10 @@ export default class GraphDataManager {
     }
 
     if (!isFinite(bounds.yMin)) {
-
       bounds.yMin = 0
     }
 
     if (!isFinite(bounds.yMax)) {
-
       bounds.yMax = 0
     }
 
