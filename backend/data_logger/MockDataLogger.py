@@ -1,5 +1,6 @@
 import math
 import asyncio
+import io 
 from .DataLogger import DataLogger
 
 class MockDataLogger(DataLogger):
@@ -22,7 +23,14 @@ class MockDataLogger(DataLogger):
     return data
 
   async def get_log_files_containing_interval(self, start: int, end: int):
-    return []
+    return await self.get_log_files()
 
   async def get_log_files(self):
-    return []
+    file = io.StringIO()
+    file.name = 'testfile'
+    file.writelines([
+      self.csv_file_manager.get_csv_header() + '\n',
+      await self.make_sensor_values_csv_line(0, await self.sensor_manager.get_latest_values())
+    ])
+    file.seek(0)
+    return [file]

@@ -12,9 +12,6 @@ class DefaultDataLogger(DataLogger):
     super().__init__(sensor_manager=sensor_manager, interval=interval)
 
     self.directory = Path(directory)
-    self.csv_file_manager = CSVFileManager(columns=[
-      CSVColumn(data_key='timestamp', title='timestamp(unix)', type=int)
-    ] + [CSVColumn(data_key=sensor.id, title="{}:{}:{}:{}".format(sensor.id, sensor.type, sensor.position, sensor.accuracy), type=float) for sensor in self.sensor_manager.sensors])
 
     self.log_start_timestamp = None
     self.current_file_timestamp = None
@@ -44,7 +41,7 @@ class DefaultDataLogger(DataLogger):
 
       # returned true means a new file was created
       if await self.ensure_timestamp_containing_file_opened(current_timestamp):
-        self.opened_file.write(self.get_log_file_csv_header())
+        self.opened_file.write(self.csv_file_manager.get_csv_header() + '/n')
         new_file_created = True
 
       if new_file_created or sensor_values_changed:
@@ -62,7 +59,7 @@ class DefaultDataLogger(DataLogger):
       file_data = self.csv_file_manager.read_file(file)
 
       for line_data in file_data:
-        timestamp = int(line_data['timestamp'])
+        timestamp = int(line_data['timestamp_unix'])
 
         if timestamp >= start and timestamp <= end:
           past_data.append(line_data)
@@ -140,27 +137,3 @@ class DefaultDataLogger(DataLogger):
 
   async def get_current_sensor_data(self):
     return await self.sensor_manager.get_latest_values()
-
-  async def make_sensor_values_csv_line(self, timestamp, values):
-    csv = ""
-    csv += str(timestamp)
-    csv += ","
-
-    for sensor in self.sensor_manager.sensors:
-      sensor_value = values[sensor.id]
-      csv += str(sensor_value)
-      csv += ","
-    csv += "\n"
-
-    return csv
-
-  def get_log_file_csv_header(self) -> str:
-    csv = "timestamp(unix)"
-    csv += ","
-
-    for sensor in self.sensor_manager.sensors:
-      csv += "{}:{}:{}:{}".format(sensor.id, sensor.type, sensor.position, sensor.accuracy)
-      csv += ","
-    csv += "\n"
-
-    return csv

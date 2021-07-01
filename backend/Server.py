@@ -1,5 +1,6 @@
 import websockets
 import asyncio
+import io
 import json
 import time
 from SensorManager import SensorManager
@@ -103,23 +104,39 @@ class WebsocketProtocol:
 
     async def send_log_files_containing_interval(self, start: int, end: int):
         files = await self.data_logger.get_log_files_containing_interval(start, end)
-        for file_path in files:
-            with open(file_path, 'r') as file:
+        for file_or_path in files:
+            try:
+                file = None
+                if isinstance(file_or_path, io.IOBase):
+                    file = file_or_path
+                else:
+                    file = open(file_or_path, 'r')
                 await self.socket.send(json.dumps({
                     "type": "log_file",
                     "contents": file.read(),
-                    "filename": file_path.name
+                    "filename": file.name
                 }))
+                
+            finally:
+                file.close()
 
     async def send_all_log_files(self):
         files = await self.data_logger.get_log_files()
-        for file_path in files:
-            with open(file_path, 'r') as file:
+        for file_or_path in files:
+            try:
+                file = None
+                if isinstance(file_or_path, io.IOBase):
+                    file = file_or_path
+                else:
+                    file = open(file_or_path, 'r')
                 await self.socket.send(json.dumps({
                     "type": "log_file",
                     "contents": file.read(),
-                    "filename": file_path.name
+                    "filename": file.name
                 }))
+
+            finally:
+                file.close()
 
     async def send_server_meta(self):
         total, used, free = shutil.disk_usage("/")

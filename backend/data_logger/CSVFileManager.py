@@ -23,4 +23,11 @@ class CSVFileManager:
 
       return data
 
+  def get_csv_header(self):
+    header = ''
+    for column in self.columns:
+      header += column.title
+      header += ','
+    return header
+
 

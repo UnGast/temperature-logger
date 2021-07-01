@@ -1,5 +1,5 @@
 /**
- * Get the index of the first significant digit. Before decimal separator negative, after positive
+ * Get the index of the first significant (non zero) digit. Before decimal separator negative, after positive
  */
 export function firstSignificantIndex(number: number): number {
   if (number === 0 || isNaN(number)) {
