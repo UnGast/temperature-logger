@@ -135,7 +135,13 @@ const store = createStore({
 		},
 
 		connect({ commit, dispatch, state }) {
-			if (state.connecting) return
+			if (state.connecting) {
+				if (state.socket.readyState != WebSocket.CLOSED && state.socket.readyState != WebSocket.CLOSING) {
+					state.socket.close()
+				}
+				commit('setSocket', null)
+			}
+
 			commit('clearServerData')
 			commit('setConnecting', true)
 
@@ -143,6 +149,7 @@ const store = createStore({
 
 			return new Promise((resolve, reject) => {
 				let socket = new WebSocket(`ws://${state.serverHost}:${state.serverPort}`)
+				commit('setSocket', socket)
 
 				setTimeout(() => {
 					if (socket.readyState != WebSocket.OPEN) {
@@ -160,7 +167,6 @@ const store = createStore({
 
 					console.log('Connected to server.')
 
-					commit('setSocket', socket)
 					commit('setConnecting', false)
 					commit('setConnected', true)
 					dispatch('fetchSensorInfo')

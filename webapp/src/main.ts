@@ -7,5 +7,7 @@ app.use(store)
 app.mount("#app")
 
 store.dispatch('restoreSettings').then(() => {
-  store.dispatch("connect")
+  return store.dispatch("connect")
+}).catch((error) => {
+  console.error("error during initial autoconnect", error)
 })
