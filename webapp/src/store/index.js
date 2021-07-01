@@ -161,9 +161,10 @@ const store = createStore({
 							reject("initial connect timed out")
 						}
 					}
-				}, 2000)
+				}, 5000)
 
 				socket.onopen = () => {
+					resolved = true
 
 					console.log('Connected to server.')
 
@@ -179,7 +180,6 @@ const store = createStore({
 					}))
 
 					if (!resolved) {
-						resolved = true
 						resolve()					
 					}
 				}
@@ -196,17 +196,20 @@ const store = createStore({
 					dispatch('processMessage', message.data)
 				}
 
-				socket.onclose = () => {
-					commit('setConnected', false)
-					commit('setConnecting', false)
+				socket.onclose = (reason) => {
+					console.log("CLOSkE", reason)
+					if (state.socket === socket) {
+						commit('setConnected', false)
+						commit('setConnecting', false)
 
-					setTimeout(() => {
-						try {
-							dispatch('connect')
-						} catch (e) {
-							console.error("error during automatic reconnect:", e) 
-						}
-					}, state.reconnectInterval)
+						setTimeout(() => {
+							try {
+								dispatch('connect')
+							} catch (e) {
+								console.error("error during automatic reconnect:", e) 
+							}
+						}, state.reconnectInterval)
+					}
 				}
 			})
 		},
