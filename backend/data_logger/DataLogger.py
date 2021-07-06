@@ -51,7 +51,7 @@ class DataLogger(ABC):
     csv = ""
     csv += str(timestamp)
     csv += ","
-    csv += str(datetime.utcfromtimestamp(timestamp).strftime('%H:%M:%S %d.%m.%Y'))
+    csv += self.format_unix_timestamp(timestamp)
     csv += ","
 
     for sensor in self.sensor_manager.sensors:
@@ -62,3 +62,6 @@ class DataLogger(ABC):
     csv += "\n"
 
     return csv
+
+  def format_unix_timestamp(self, timestamp):
+    return datetime.utcfromtimestamp(timestamp).strftime('%H:%M:%S %d.%m.%Y')

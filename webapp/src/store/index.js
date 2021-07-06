@@ -71,7 +71,6 @@ const store = createStore({
 			state.selectedSensorIds.delete(sensorId)
 		},
 		storeStreamValues(state, { timestamp, values }) {
-
 			for (let [sensorId, value] of Object.entries(values)) {
 				if (!state.sensorData[sensorId]) {
 					state.sensorData[sensorId] = []
