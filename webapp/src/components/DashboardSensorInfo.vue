@@ -20,7 +20,7 @@
               </tr>
 
               <tr class="field">
-                <td><label class="label">Wert:</label></td><td><span class="info">{{ getLatestSensorValue(sensor) }}</span></td>
+                <td><label class="label">Wert:</label></td><td><span class="info">{{ getLatestSensorValueRounded(sensor) }}</span></td>
               </tr>
 
               <tr class="field">
@@ -58,6 +58,10 @@ export default {
       } else {
         return undefined
       }
+    },
+    getLatestSensorValueRounded(sensor) {
+      let value = this.getLatestSensorValue(sensor)
+      return Math.round(value * 100) / 100
     }
   }
 }

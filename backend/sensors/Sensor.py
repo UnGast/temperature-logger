@@ -24,7 +24,7 @@ class Sensor(ABC):
         }
 
     def read(self) -> float:
-        return self.__read__() + self.correction_offset
+        return round(self.__read__() + self.correction_offset, 2)
 
     @abstractmethod
     def __read__(self) -> float:
