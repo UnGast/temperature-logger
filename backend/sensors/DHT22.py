@@ -12,5 +12,5 @@ class DHT22(sensors.Sensor):
                         
         self.backend = adafruit_dht.DHT22(prepared_pin)
 
-    def read(self) -> float:
+    def __read__(self) -> float:
         return self.backend.temperature

@@ -1,4 +1,6 @@
-class Sensor:
+from abc import abstractmethod, ABC
+
+class Sensor(ABC):
     def __init__(self, id, type, position, accuracy, correction_offset):
         self.id = id
         self.type = type
@@ -22,4 +24,9 @@ class Sensor:
         }
 
     def read(self) -> float:
-        print("READ NOT IMPLEMENTED FOR SENSOR: {} with id {} at {}".format(self.type, self.id, self.position))
+        return self.__read__() + self.correction_offset
+
+    @abstractmethod
+    def __read__(self) -> float:
+        #raise Exception("__read__ not implemented for sensor: {} with id {} at {}".format(self.type, self.id, self.position))
+        pass

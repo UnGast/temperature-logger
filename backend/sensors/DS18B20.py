@@ -6,7 +6,7 @@ class DS18B20(sensors.Sensor):
         super().__init__(id=id, type="DS18B20", position=position, accuracy=0.5, correction_offset=correction_offset) # is accuracy correct?
         self.file = open("/sys/bus/w1/devices/{}/w1_slave".format(device_id), "r")
 
-    def read(self) -> float:
+    def __read__(self) -> float:
         raw_info = self.file.read()
         self.file.seek(0)
 
