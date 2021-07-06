@@ -12,19 +12,23 @@
           <table class="meta-info">
             <tbody>
               <tr class="field">
-                <td><label class="label">ID:</label></td><td><span class="id info">{{ sensor.id }}</span></td>
+                <td><label class="label">ID:</label></td><td><span class="info">{{ sensor.id }}</span></td>
               </tr>
 
               <tr class="field">
-                <td><label class="label">Position:</label></td><td><span class="position info">{{ sensor.position }}</span></td>
+                <td><label class="label">Position:</label></td><td><span class="info">{{ sensor.position }}</span></td>
               </tr>
 
               <tr class="field">
-                <td><label class="label">Wert:</label></td><td><span class="latest-value info">{{ getLatestSensorValue(sensor) }}</span></td>
+                <td><label class="label">Wert:</label></td><td><span class="info">{{ getLatestSensorValue(sensor) }}</span></td>
               </tr>
 
               <tr class="field">
-                <td><label class="label">Genauigkeit:</label></td><td><span class="latest-value info">± {{ sensor.accuracy }}</span></td>
+                <td><label class="label">Genauigkeit:</label></td><td><span class="info">± {{ sensor.accuracy }}</span></td>
+              </tr>
+
+              <tr class="field">
+                <td><label class="label">Korrektur Offset:</label></td><td><span class="info">{{ sensor.correction_offset }}</span></td>
               </tr>
             </tbody>
           </table>

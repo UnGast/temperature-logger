@@ -13,6 +13,7 @@ export interface SensorInfo {
   type: string
   position: string
   accuracy: number 
+  correction_offset: number
 }
 
 export interface SensorArrayInfo {
