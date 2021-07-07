@@ -1,0 +1,4 @@
+- test@email.com:
+  host: test.smtp.com
+  port: 587
+  password: 'password'
