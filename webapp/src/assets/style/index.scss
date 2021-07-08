@@ -7,6 +7,9 @@ $special-font-family: Lobster;
 
 $dashboard-screen-spacing: 32px;
 
+$tile-background: darken($background-color, 3%);
+$tile-corner-radius: 5px;
+
 :export {
   primaryColor: $primary-color;
   backgroundColor: $background-color;

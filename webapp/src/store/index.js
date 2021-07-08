@@ -7,9 +7,7 @@ import DownloadPackager from '~/data/sensor/DownloadPackager'
 let sensorColorScale = chroma.scale(['yellow', 'lightgreen', 'lime', 'lightblue', 'orange']).mode('lch')
 
 const store = createStore({
-
 	state() {
-
 		return {
 			serverHost: process.env.VUE_APP_DEFAULT_SERVER_HOST,
 			serverPort: process.env.VUE_APP_DEFAULT_SERVER_PORT,
@@ -18,6 +16,7 @@ const store = createStore({
 			connected: false,
 			sensorInfo: {},
 			sensorData: {},
+			notificationConfigs: [],
 			serverMeta: null,
 			reconnectInterval: 1000,
 			selectedSensorIds: new Set(),
@@ -112,6 +111,9 @@ const store = createStore({
 				timeValues.sort((a, b) => a.timestamp - b.timestamp)
 			}
 		},
+		setNotificationConfigs(state, configs) {
+			state.notificationConfigs = configs
+		},
 		setServerMeta(state, meta) {
 			state.serverMeta = meta
 		}
@@ -170,6 +172,7 @@ const store = createStore({
 					commit('setConnecting', false)
 					commit('setConnected', true)
 					dispatch('fetchSensorInfo')
+					dispatch('fetchNotificationConfigs')
 					dispatch('fetchTimeframeIntervalData')
 					dispatch('fetchServerMeta')
 
@@ -219,6 +222,12 @@ const store = createStore({
 			}))
 		},
 
+		fetchNotificationConfigs({ state }) {
+			state.socket.send(JSON.stringify({
+				action: 'get_notification_configs'
+			}))
+		},
+
 		fetchServerMeta({ state }) {
 			state.socket.send(JSON.stringify({
 				action: "get_server_meta"
@@ -235,6 +244,9 @@ const store = createStore({
 				case 'sensor_info':
 					commit('setSensorInfo', jsonMessage.sensors)
 					commit('setSelectedSensorIds', jsonMessage.sensors.map(sensor => sensor.id))
+					break
+				case 'notification_configs':
+					commit('setNotificationConfigs', jsonMessage.configs)
 					break
 				case 'past_data':
 					commit('storeTimeframeIntervalValues', jsonMessage.data)

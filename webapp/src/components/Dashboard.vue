@@ -6,6 +6,7 @@
             <dashboard-graph/>
             <dashboard-download-section/>
             <dashboard-sensor-info/>
+            <dashboard-notification-configs-section/>
             <dashboard-server-meta-section/>
         </div>
     </section>
@@ -14,12 +15,13 @@
 <script>
 import StatusBar from './StatusBar'
 import DashboardSensorInfo from './DashboardSensorInfo'
+import DashboardNotificationConfigsSection from './DashboardNotificationConfigsSection.vue'
 import DashboardGraph from './DashboardGraph'
 import DashboardDownloadSection from './DashboardDownloadSection'
 import DashboardServerMetaSection from './DashboardServerMetaSection'
 
 export default {
-    components: { StatusBar, DashboardSensorInfo, DashboardGraph, DashboardDownloadSection, DashboardServerMetaSection },
+    components: { StatusBar, DashboardSensorInfo, DashboardNotificationConfigsSection, DashboardGraph, DashboardDownloadSection, DashboardServerMetaSection },
 }
 </script>
 

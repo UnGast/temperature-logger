@@ -70,8 +70,6 @@ export default {
 <style lang="scss" scoped>
 @import 'style';
 
-$sensor-background: darken($background-color, 3%);
-
 .dashboard-sensor-info {
   padding: 32px;
   background: $background-color;
@@ -101,9 +99,9 @@ $sensor-background: darken($background-color, 3%);
     padding: 16px;
     padding-top: 24px;
     //border: 1px solid $sensor-border;
-    border-radius: 5px;
+    border-radius: $tile-corner-radius;
     transition: background 0.2s;
-    background: $sensor-background;
+    background: $tile-background;
   }
 
   .type {
@@ -111,7 +109,7 @@ $sensor-background: darken($background-color, 3%);
     top: 0;
     left: 16px;
     transform: translateY(-50%);
-    background: $sensor-background;
+    background: $tile-background;
     padding: 8px 12px;
     font-size: 1rem;
     text-transform: uppercase;
