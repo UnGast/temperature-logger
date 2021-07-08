@@ -59,6 +59,6 @@ notification_manager.start_watching()
 
 print("initialized application with sensors:", sensors, "and data logger", data_logger)
 
-server = Server(sensor_manager, data_logger)
+server = Server(sensor_manager, data_logger, notification_manager)
 asyncio.gather(server.serve(host=args.host, port=args.port), data_logger.log_loop())
 asyncio.get_event_loop().run_forever()

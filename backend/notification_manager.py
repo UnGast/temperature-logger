@@ -9,6 +9,7 @@ from sensor_manager import SensorManager
 
 class FallBelowNotificationConfig:
 	def __init__(self, sensor_id: str, threshold: float, sender_email: str, receiver_email: str, check_interval: float, message_subject: str):
+		self.type = 'fall_below'
 		self.sensor_id = sensor_id
 		self.threshold = threshold
 		self.sender_email = sender_email

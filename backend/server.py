@@ -5,14 +5,16 @@ import json
 import time
 from sensor_manager import SensorManager
 from data_logger import DataLogger
+from notification_manager import NotificationManager
 import shutil
 
 class WebsocketProtocol:
-    def __init__(self, socket, sensor_manager: SensorManager, data_logger: DataLogger):
+    def __init__(self, socket, sensor_manager: SensorManager, data_logger: DataLogger, notification_manager: NotificationManager):
         self.streaming = False
         self.socket = socket
         self.sensor_manager = sensor_manager
         self.data_logger = data_logger
+        self.notification_manager = notification_manager
         self.listen_task = asyncio.create_task(self.listen())
 
     async def execute(self):
@@ -44,6 +46,9 @@ class WebsocketProtocol:
 
         elif action == "get_sensor_info":
             await self.send_sensor_info()
+
+        elif action == "get_notification_configs":
+            await self.send_notification_configs()
 
         elif action == "get_past_data":
           start = int(payload["start"])
@@ -92,6 +97,16 @@ class WebsocketProtocol:
         await self.socket.send(json.dumps({
             "type": "sensor_info",
             "sensors": [s.get_info() for s in self.sensor_manager.sensors]
+        }))
+    
+    async def send_notification_configs(self):
+        print("sending notification configs")
+        await self.socket.send(json.dumps({
+            "type": "notification_configs",
+            "configs": [{
+                "type": x.type,
+                "threshold": x.threshold
+            } for x in self.notification_manager.notification_configs]
         }))
 
     async def send_past_data(self, start: int, end: int):
@@ -153,13 +168,14 @@ class WebsocketProtocol:
         }))
 
 class Server:
-    def __init__(self, sensor_manager: SensorManager, data_logger: DataLogger):
+    def __init__(self, sensor_manager: SensorManager, data_logger: DataLogger, notification_manager: NotificationManager):
         self.sensor_manager = sensor_manager
         self.data_logger = data_logger
+        self.notification_manager = notification_manager
 
     async def serve_connection(self, websocket, path):
         print("connected to", websocket, path)
-        protocol = WebsocketProtocol(websocket, self.sensor_manager, self.data_logger)
+        protocol = WebsocketProtocol(websocket, self.sensor_manager, self.data_logger, self.notification_manager)
         await protocol.execute()
 
     async def serve(self, host="0.0.0.0", port=8000):
