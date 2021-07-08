@@ -5,7 +5,7 @@ import math
 from pathlib import Path
 from .DataLogger import DataLogger
 from .CSVFileManager import CSVFileManager, Column as CSVColumn
-from SensorManager import SensorManager
+from sensor_manager import SensorManager
 
 class DefaultDataLogger(DataLogger):
   def __init__(self, sensor_manager: SensorManager, interval: int, file_interval: int, directory: str):

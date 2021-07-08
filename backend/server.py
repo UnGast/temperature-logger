@@ -3,7 +3,7 @@ import asyncio
 import io
 import json
 import time
-from SensorManager import SensorManager
+from sensor_manager import SensorManager
 from data_logger import DataLogger
 import shutil
 

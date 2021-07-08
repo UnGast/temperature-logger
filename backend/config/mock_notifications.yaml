@@ -1,0 +1,6 @@
+- fall_below: 20
+  sensor: 1
+  sender: 'test@email.com'
+  receiver: 'receiver@email.com'
+  check_interval: 10
+  message_subject: 'sensor fell below 20'
