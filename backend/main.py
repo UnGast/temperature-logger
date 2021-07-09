@@ -31,7 +31,7 @@ if args.mock:
 else:
     sensor_config_file_path = args.sensors
     data_logger_config_file_path = args.logger
-    emails_config_file_path = args.email
+    emails_config_file_path = args.emails
     notifications_config_file_path = args.notifications
 
 if sensor_config_file_path is None:
