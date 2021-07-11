@@ -1,4 +1,4 @@
 - test@email.com:
-  host: test.smtp.com
+  host: smtp.email.com
   port: 587
-  password: 'password'
+  password: '1234'

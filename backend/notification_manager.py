@@ -4,19 +4,20 @@ import asyncio
 from threading import Thread
 from pathlib import Path
 import time
-from typing import List, Any
+from typing import List, Any, Optional
 import yaml
 from sensor_manager import SensorManager
 from email_manager import EmailManager
 
 class NotificationConfig(ABC):
-	def __init__(self, sensor_id: str, threshold: float, sender_email: str, receiver_email: str, check_interval: float, message_subject: str):
+	def __init__(self, sensor_id: str, threshold: float, sender_email: str, receiver_email: str, check_interval: float, message_subject: str, message: Optional[str]):
 		self.sensor_id = sensor_id
 		self.threshold = threshold
 		self.sender_email = sender_email
 		self.receiver_email = receiver_email
 		self.check_interval = check_interval
 		self.message_subject = message_subject
+		self.message = message
 	
 	@classmethod
 	@abstractmethod
@@ -38,7 +39,8 @@ class NotificationConfig(ABC):
 			sender_email=raw_dict['sender'],
 			receiver_email=raw_dict['receiver'],
 			check_interval=float(raw_dict['check_interval']),
-			message_subject=raw_dict['message_subject']
+			message_subject=raw_dict['message_subject'],
+			message=raw_dict['message'] if 'message' in raw_dict else None
 		)
 
 	@abstractmethod
@@ -106,11 +108,16 @@ class NotificationManager:
 
 	def send_notification(self, notification_config: NotificationConfig):
 		print('send notification for config:', notification_config)
+		
+		text = notification_config.message
+		if text is None:
+			text = 'notification was automatically sent'
+
 		self.email_manager.send_email(
 			sender_address=notification_config.sender_email,
 			receiver_address=notification_config.receiver_email,
 			subject=notification_config.message_subject,
-			text='notification was automatically sent')
+			text=text)
 	
 	@staticmethod
 	def parse_notifications_config(config_file_path: Path) -> List[Any]:

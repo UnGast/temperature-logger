@@ -29,10 +29,10 @@ class EmailManager:
 		smtp_client.starttls()
 		smtp_client.login(sender_address_config.address, sender_address_config.password)
 
-		message = MIMEText(subject)
+		message = MIMEText(text)
 		message['From'] = sender_address_config.address
 		message['To'] = receiver_address
-		message['Subject'] = text
+		message['Subject'] = subject 
 
 		smtp_client.send_message(message)
 

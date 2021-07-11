@@ -1,12 +1,13 @@
 - fall_below: 20
   sensor: 1
   sender: 'test@email.com'
-  receiver: 'receiver@email.com'
+  receiver: 'test2@email.com'
   check_interval: 5
   message_subject: 'sensor fell below 20'
 - rise_above: 20
   sensor: 1
   sender: 'test@email.com'
-  receiver: 'receiver@email.com'
+  receiver: 'test2@email.com'
   check_interval: 5
   message_subject: 'sensor rose above 20'
+  message: 'this is a message'
