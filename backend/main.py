@@ -54,7 +54,7 @@ data_logger = DataLoggerClass(sensor_manager=sensor_manager, **data_logger_argum
 
 email_manager = EmailManager(address_configs=EmailManager.parse_address_configs(emails_config_file_path))
 
-notification_manager = NotificationManager(notification_configs=NotificationManager.parse_notifications_config(config_file_path=notifications_config_file_path), sensor_manager=sensor_manager)
+notification_manager = NotificationManager(notification_configs=NotificationManager.parse_notifications_config(config_file_path=notifications_config_file_path), sensor_manager=sensor_manager, email_manager=email_manager)
 notification_manager.start_watching()
 
 print("initialized application with sensors:", sensors, "and data logger", data_logger)

@@ -104,7 +104,7 @@ class WebsocketProtocol:
         await self.socket.send(json.dumps({
             "type": "notification_configs",
             "configs": [{
-                "type": x.type,
+                "type": x.get_type_name(),
                 "threshold": x.threshold
             } for x in self.notification_manager.notification_configs]
         }))
