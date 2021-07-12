@@ -10,6 +10,8 @@ class Sensor(ABC):
             self.correction_offset = float(correction_offset)
         elif isinstance(correction_offset, float):
             self.correction_offset = correction_offset
+        elif isinstance(correction_offset, int):
+            self.correction_offset = correction_offset
         else:
             raise Exception(f"type of correction_offset value not supported: {correction_offset}")
         
