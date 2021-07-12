@@ -10,15 +10,12 @@ from sensor_manager import SensorManager
 from email_manager import EmailManager
 
 class NotificationConfig(ABC):
-	def __init__(self, sensor_id: str, threshold: float, sender_email: str, receiver_email: str, check_interval: float, message_subject: str, message: Optional[str]):
-		self.sensor_id = sensor_id
-		self.threshold = threshold
+	def __init__(self, sender_email: str, receiver_email: str, message_subject: str, message: Optional[str]):
 		self.sender_email = sender_email
 		self.receiver_email = receiver_email
-		self.check_interval = check_interval
 		self.message_subject = message_subject
 		self.message = message
-	
+
 	@classmethod
 	@abstractmethod
 	def get_type_name(cls):
@@ -26,22 +23,55 @@ class NotificationConfig(ABC):
 
 	@classmethod
 	def from_dict(cls, raw_dict):
+		cls_params = cls.params_from_dict(raw_dict)
+
+		if cls_params == False:
+			raise Exception('raw dictionary does not seem to encode for this message type')
+		
+		result = cls(
+			sender_email=raw_dict['sender'],
+			receiver_email=raw_dict['receiver'],
+			message_subject=raw_dict['message_subject'],
+			message=raw_dict['message'] if 'message' in raw_dict else None,
+			**cls_params)
+
+		return result
+
+	@classmethod
+	@abstractmethod
+	def params_from_dict(cls, raw_dict):
+		pass
+
+	@abstractmethod
+	def check_signal(self, current_value, previous_value) -> bool:
+		pass
+
+class BaseThresholdNotificationConfig(NotificationConfig):
+	def __init__(self, sensor_id: str, threshold: float, check_interval: float, **kwargs):
+		super().__init__(**kwargs)
+		self.sensor_id = sensor_id
+		self.threshold = threshold
+		self.check_interval = check_interval
+	
+	@classmethod
+	@abstractmethod
+	def get_type_name(cls):
+		pass
+
+	@classmethod
+	def params_from_dict(cls, raw_dict):
 		threshold = next(value for key, value in raw_dict.items() if key == cls.get_type_name())
 
 		if threshold is None:
-			return None
+			return False
 		
 		threshold = float(threshold)
 		
-		return cls(
-			sensor_id=raw_dict['sensor'],
-			threshold=threshold,
-			sender_email=raw_dict['sender'],
-			receiver_email=raw_dict['receiver'],
-			check_interval=float(raw_dict['check_interval']),
-			message_subject=raw_dict['message_subject'],
-			message=raw_dict['message'] if 'message' in raw_dict else None
-		)
+		return {
+			'sensor_id': raw_dict['sensor'],
+			'threshold': threshold,
+			'check_interval': float(raw_dict['check_interval'])
+		}
 
 	@abstractmethod
 	def check_signal(self, current_value, previous_value) -> bool:
@@ -50,7 +80,7 @@ class NotificationConfig(ABC):
 	def __str__(self):
 		return f'Notification {{ {self.get_type_name()}: {str(self.threshold)}, sender: {self.sender_email}, receiver: {self.receiver_email} }}'
 
-class FallBelowNotificationConfig(NotificationConfig):
+class FallBelowNotificationConfig(BaseThresholdNotificationConfig):
 	@classmethod
 	def get_type_name(cls):
 		return 'fall_below'
@@ -58,13 +88,18 @@ class FallBelowNotificationConfig(NotificationConfig):
 	def check_signal(self, current_value, previous_value) -> bool:
 		return self.threshold > current_value and previous_value > self.threshold
 
-class RiseAboveNotificationConfig(NotificationConfig):
+class RiseAboveNotificationConfig(BaseThresholdNotificationConfig):
 	@classmethod
 	def get_type_name(cls):
 		return 'rise_above'
 
 	def check_signal(self, current_value, previous_value) -> bool:
 		return self.threshold < current_value and previous_value < self.threshold
+
+class SystemStartNotificationConfig(NotificationConfig):
+	@classmethod
+	def from_dict(cls, raw_dict):
+		return SystemStartNotificationConfig()
 
 class NotificationManager:
 	def __init__(self, notification_configs, sensor_manager: SensorManager, email_manager: EmailManager):
@@ -141,6 +176,6 @@ class NotificationManager:
 						pass
 
 				if not found_matching_type:
-					raise Exception('found no matching type for notification config at index: {index}')
+					raise Exception(f'found no matching type for notification config at index: {index}')
 					
 			return notification_configs
