@@ -10,11 +10,12 @@ from sensor_manager import SensorManager
 from email_manager import EmailManager
 
 class NotificationConfig(ABC):
-	def __init__(self, sender_email: str, receiver_email: str, message_subject: str, message: Optional[str]):
+	def __init__(self, sender_email: str, receiver_email: str, message_subject: str, message: Optional[str], check_interval: float):
 		self.sender_email = sender_email
 		self.receiver_email = receiver_email
 		self.message_subject = message_subject
 		self.message = message
+		self.check_interval = check_interval
 
 	@classmethod
 	@abstractmethod
@@ -23,6 +24,9 @@ class NotificationConfig(ABC):
 
 	@classmethod
 	def from_dict(cls, raw_dict):
+		if raw_dict['type'] != cls.get_type_name():
+			raise Exception('raw dictionary does not seem to encode for this message type')
+
 		cls_params = cls.params_from_dict(raw_dict)
 
 		if cls_params == False:
@@ -33,6 +37,7 @@ class NotificationConfig(ABC):
 			receiver_email=raw_dict['receiver'],
 			message_subject=raw_dict['message_subject'],
 			message=raw_dict['message'] if 'message' in raw_dict else None,
+			check_interval=float(raw_dict['check_interval']),
 			**cls_params)
 
 		return result
@@ -47,11 +52,10 @@ class NotificationConfig(ABC):
 		pass
 
 class BaseThresholdNotificationConfig(NotificationConfig):
-	def __init__(self, sensor_id: str, threshold: float, check_interval: float, **kwargs):
+	def __init__(self, sensor_id: str, threshold: float, **kwargs):
 		super().__init__(**kwargs)
 		self.sensor_id = sensor_id
 		self.threshold = threshold
-		self.check_interval = check_interval
 		self.previous_check_value = None
 
 	@classmethod
@@ -61,17 +65,9 @@ class BaseThresholdNotificationConfig(NotificationConfig):
 
 	@classmethod
 	def params_from_dict(cls, raw_dict):
-		threshold = next(value for key, value in raw_dict.items() if key == cls.get_type_name())
-
-		if threshold is None:
-			return False
-		
-		threshold = float(threshold)
-		
 		return {
 			'sensor_id': raw_dict['sensor'],
-			'threshold': threshold,
-			'check_interval': float(raw_dict['check_interval'])
+			'threshold': float(raw_dict['threshold'])
 		}
 
 	@abstractmethod
@@ -124,6 +120,10 @@ class SystemStartNotificationConfig(NotificationConfig):
 	def params_from_dict(cls, raw_dict):
 		return {}
 
+	@classmethod
+	def get_type_name(cls):
+		return 'system_start'
+
 	def check_signal(self, current_sensor_values) -> bool:
 		result = not self.checked_once
 		self.checked_once = True
@@ -152,7 +152,6 @@ class NotificationManager:
 					self.last_check_timestamps[index] + notification_config.check_interval <= current_timestamp:
 					
 					self.last_check_timestamps[index] = current_timestamp
-					current_check_value = self.current_sensor_values[notification_config.sensor_id]
 
 					try:
 						if notification_config.check_signal(self.current_sensor_values):
@@ -181,7 +180,7 @@ class NotificationManager:
 		with open(config_file_path, 'rb') as file:
 			raw_notification_configs = yaml.load(file, Loader=yaml.Loader)
 
-			potential_config_types = [FallBelowNotificationConfig, RiseAboveNotificationConfig]
+			potential_config_types = [FallBelowNotificationConfig, RiseAboveNotificationConfig, SystemStartNotificationConfig]
 			notification_configs = []
 			for index, raw_notification_config in enumerate(raw_notification_configs):
 				found_matching_type = False
