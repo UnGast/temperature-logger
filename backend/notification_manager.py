@@ -43,7 +43,7 @@ class NotificationConfig(ABC):
 		pass
 
 	@abstractmethod
-	def check_signal(self, current_value, previous_value) -> bool:
+	def check_signal(self, current_sensor_values) -> bool:
 		pass
 
 class BaseThresholdNotificationConfig(NotificationConfig):
@@ -52,7 +52,8 @@ class BaseThresholdNotificationConfig(NotificationConfig):
 		self.sensor_id = sensor_id
 		self.threshold = threshold
 		self.check_interval = check_interval
-	
+		self.previous_check_value = None
+
 	@classmethod
 	@abstractmethod
 	def get_type_name(cls):
@@ -85,21 +86,48 @@ class FallBelowNotificationConfig(BaseThresholdNotificationConfig):
 	def get_type_name(cls):
 		return 'fall_below'
 	
-	def check_signal(self, current_value, previous_value) -> bool:
-		return self.threshold > current_value and previous_value > self.threshold
+	def check_signal(self, current_sensor_values) -> bool:
+		current_value = current_sensor_values[self.sensor_id]
+
+		result = False
+
+		if self.previous_check_value is not None:
+			result = self.threshold > current_value and self.previous_check_value > self.threshold
+
+		self.previous_check_value = current_value
+
+		return result
 
 class RiseAboveNotificationConfig(BaseThresholdNotificationConfig):
 	@classmethod
 	def get_type_name(cls):
 		return 'rise_above'
 
-	def check_signal(self, current_value, previous_value) -> bool:
-		return self.threshold < current_value and previous_value < self.threshold
+	def check_signal(self, current_sensor_values) -> bool:
+		current_value = current_sensor_values[self.sensor_id]
+
+		result = False
+
+		if self.previous_check_value is not None:
+			result = self.threshold < current_value and self.previous_check_value < self.threshold
+
+		self.previous_check_value = current_value
+
+		return result
 
 class SystemStartNotificationConfig(NotificationConfig):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.checked_once = False
+
 	@classmethod
-	def from_dict(cls, raw_dict):
-		return SystemStartNotificationConfig()
+	def params_from_dict(cls, raw_dict):
+		return {}
+
+	def check_signal(self, current_sensor_values) -> bool:
+		result = not self.checked_once
+		self.checked_once = True
+		return result
 
 class NotificationManager:
 	def __init__(self, notification_configs, sensor_manager: SensorManager, email_manager: EmailManager):
@@ -107,7 +135,6 @@ class NotificationManager:
 		self.sensor_manager = sensor_manager
 		self.email_manager = email_manager
 		self.last_check_timestamps = {}
-		self.previous_check_values = {}
 		self.current_sensor_values = None
 	
 	def start_watching(self):
@@ -127,19 +154,14 @@ class NotificationManager:
 					self.last_check_timestamps[index] = current_timestamp
 					current_check_value = self.current_sensor_values[notification_config.sensor_id]
 
-					if index in self.previous_check_values:
-						try:
-							if notification_config.check_signal(
-								self.current_sensor_values[notification_config.sensor_id],
-								self.previous_check_values[index]):
-								self.send_notification(notification_config)
-						except Exception as e:
-							print(f'an error occurred while attempting to check or send notification {notification_config}', e)
-
-					self.previous_check_values[index] = current_check_value
+					try:
+						if notification_config.check_signal(self.current_sensor_values):
+							self.send_notification(notification_config)
+					except Exception as e:
+						print(f'an error occurred while attempting to check or send notification {notification_config}', e)
 		finally:
-			time.sleep(1)
-			self.watch_loop()
+				time.sleep(1)
+				self.watch_loop()
 
 	def send_notification(self, notification_config: NotificationConfig):
 		print('send notification for config:', notification_config)
