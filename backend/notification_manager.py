@@ -167,7 +167,7 @@ class NotificationManager:
 		
 		text = notification_config.message
 		if text is None:
-			text = 'notification was automatically sent'
+			text = 'notification was sent automatically'
 
 		self.email_manager.send_email(
 			sender_address=notification_config.sender_email,
