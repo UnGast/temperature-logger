@@ -5,8 +5,9 @@ import yaml
 from typing import List 
 
 class EmailAddressConfig:
-	def __init__(self, address: str, password: str, smtp_host: str, smtp_port: int):
+	def __init__(self, address: str, name: str, password: str, smtp_host: str, smtp_port: int):
 		self.address = address
+		self.name = name
 		self.password = password
 		self.smtp_host = smtp_host
 		self.smtp_port = smtp_port
@@ -30,7 +31,7 @@ class EmailManager:
 		smtp_client.login(sender_address_config.address, sender_address_config.password)
 
 		message = MIMEText(text)
-		message['From'] = sender_address_config.address
+		message['From'] = f'{sender_address_config.name}'
 		message['To'] = receiver_address
 		message['Subject'] = subject 
 
@@ -43,28 +44,34 @@ class EmailManager:
 
 			address_configs = []
 			for config_index, raw_address_config in enumerate(config):
-				address = next(key for key, value in raw_address_config.items() if value is None)
+				address = raw_address_config['address']
 				if address is None:
-					print(f'error in email address config: address missing (config {config_index})')
+					print(f'error in email config: address missing (config {config_index})')
+					continue
+
+				name = raw_address_config['name']
+				if address is None:
+					print(f'error in email config: name missing (config {config_index})')
 					continue
 
 				password = raw_address_config['password']
 				if password is None:
-					print(f'error in email address config: password missing (config {config_index})')
+					print(f'error in email config: password missing (config {config_index})')
 					continue
 
 				host = raw_address_config['host']
 				if host is None:
-					print(f'error in email address config: host missing (config {config_index})')
+					print(f'error in email config: host missing (config {config_index})')
 					continue
 
 				port = raw_address_config['port']
 				if port is None:
-					print(f'error in email address config: port missing (config {config_index})')
+					print(f'error in email config: port missing (config {config_index})')
 					continue
 
 				address_configs.append(EmailAddressConfig(
 					address=address,
+					name=name,
 					password=password,
 					smtp_host=host,
 					smtp_port=port
