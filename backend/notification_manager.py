@@ -87,7 +87,9 @@ class FallBelowNotificationConfig(BaseThresholdNotificationConfig):
 
 		result = False
 
-		if self.previous_check_value is not None:
+		if self.previous_check_value is None:
+			result = self.threshold > current_value
+		else:
 			result = self.threshold > current_value and self.previous_check_value > self.threshold
 
 		self.previous_check_value = current_value
@@ -104,7 +106,9 @@ class RiseAboveNotificationConfig(BaseThresholdNotificationConfig):
 
 		result = False
 
-		if self.previous_check_value is not None:
+		if self.previous_check_value is None:
+			result = self.threshold < current_value
+		else:
 			result = self.threshold < current_value and self.previous_check_value < self.threshold
 
 		self.previous_check_value = current_value

@@ -101,12 +101,19 @@ class WebsocketProtocol:
     
     async def send_notification_configs(self):
         print("sending notification configs")
+
+        prepared_configs = []
+        for config in self.notification_manager.notification_configs:
+            prepared_config = {
+                "type": config.get_type_name()
+            }
+            if hasattr(config, 'threshold'):
+                prepared_config['threshold'] = config.threshold
+            prepared_configs.append(prepared_config)
+
         await self.socket.send(json.dumps({
             "type": "notification_configs",
-            "configs": [{
-                "type": x.get_type_name(),
-                "threshold": x.threshold
-            } for x in self.notification_manager.notification_configs]
+            "configs": prepared_configs
         }))
 
     async def send_past_data(self, start: int, end: int):

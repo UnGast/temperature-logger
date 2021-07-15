@@ -9,7 +9,7 @@
 				<tr class="key-value-pair">
 					<td><label class="label">type:</label></td>
 					<td class="value-column"><span class="value">{{config.type}}</span></td></tr>
-				<tr class="key-value-pair">
+				<tr class="key-value-pair" v-if="'threshold' in config">
 					<td><label class="label">threshold:</label></td>
 					<td class="value-column"><span class="value">{{config.threshold}}</span></td>
 				</tr>
