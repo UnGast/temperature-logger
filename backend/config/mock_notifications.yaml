@@ -5,6 +5,7 @@
   check_interval: 5
 - type: fall_below
   threshold: 20
+  min_breach_duration: 60
   sensor: 1
   sender: 'test@email.com'
   receiver: 'test2@email.com'
@@ -12,6 +13,7 @@
   message_subject: 'sensor fell below 20'
 - type: rise_above
   threshold: 20
+  min_breach_duration: 60
   sensor: 1
   sender: 'test@email.com'
   receiver: 'test2@email.com'

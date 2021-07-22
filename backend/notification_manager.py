@@ -52,11 +52,16 @@ class NotificationConfig(ABC):
 		pass
 
 class BaseThresholdNotificationConfig(NotificationConfig):
-	def __init__(self, sensor_id: str, threshold: float, **kwargs):
+	def __init__(self, sensor_id: str, threshold: float, min_breach_duration: float, **kwargs):
 		super().__init__(**kwargs)
 		self.sensor_id = sensor_id
 		self.threshold = threshold
+		self.min_breach_duration = min_breach_duration
 		self.previous_check_value = None
+
+		self.tracking_breach = False
+		self.current_breach_start_timestamp = None
+		self.current_breach_notified = False
 
 	@classmethod
 	@abstractmethod
@@ -67,11 +72,47 @@ class BaseThresholdNotificationConfig(NotificationConfig):
 	def params_from_dict(cls, raw_dict):
 		return {
 			'sensor_id': raw_dict['sensor'],
-			'threshold': float(raw_dict['threshold'])
+			'threshold': float(raw_dict['threshold']),
+			'min_breach_duration': float(raw_dict['min_breach_duration'])
 		}
 
+	def check_signal(self, current_sensor_values) -> bool:
+		breached = False
+		
+		try:
+			breached = self.check_threshold_breached(current_sensor_values)
+		except Exception as e:
+			breached = self.tracking_breach
+
+		if breached and not self.tracking_breach:
+			print("start tracking threshold breach", self)
+			self.tracking_breach = True
+			self.current_breach_start_timestamp = time.time()
+			self.current_breach_notified = False
+		elif not breached and self.tracking_breach:
+			print("threshold breach interrupted by non-breaching value", self)
+			self.tracking_breach = False
+
+		if breached and self.tracking_breach:
+			print("check breach reaches min duration")
+			current_timestamp = time.time()
+			duration = current_timestamp - self.current_breach_start_timestamp
+			duration_reached = duration >= self.min_breach_duration
+
+			print("reached?", duration_reached)
+
+			result = duration_reached and not self.current_breach_notified 
+			print("notify?", result, "already notified?", self.current_breach_notified)
+
+			if duration_reached:
+				self.current_breach_notified = True
+
+			return result
+
+		return False
+	
 	@abstractmethod
-	def check_signal(self, current_value, previous_value) -> bool:
+	def check_threshold_breached(self, current_sensor_values):
 		pass
 
 	def __str__(self):
@@ -82,7 +123,7 @@ class FallBelowNotificationConfig(BaseThresholdNotificationConfig):
 	def get_type_name(cls):
 		return 'fall_below'
 	
-	def check_signal(self, current_sensor_values) -> bool:
+	def check_threshold_breached(self, current_sensor_values) -> bool:
 		current_value = current_sensor_values[self.sensor_id]
 
 		result = False
@@ -101,19 +142,27 @@ class RiseAboveNotificationConfig(BaseThresholdNotificationConfig):
 	def get_type_name(cls):
 		return 'rise_above'
 
-	def check_signal(self, current_sensor_values) -> bool:
+	def check_threshold_breached(self, current_sensor_values) -> bool:
 		current_value = current_sensor_values[self.sensor_id]
-
-		result = False
-
-		if self.previous_check_value is None:
-			result = self.threshold < current_value
+		if current_value is None:
+			print('delaying check because sensor read value is none')
+			raise Exception('no valid value, could not check threshold breached')
 		else:
-			result = self.threshold < current_value and self.previous_check_value < self.threshold
+			return current_value > self.threshold
 
-		self.previous_check_value = current_value
+		#result = False
 
-		return result
+        #if self.previous_check_value is None:
+        #    result = self.threshold < current_value
+        #    print("CHECK RISE", "HAVE NO PREVIOUS", current_value)
+        #else:
+        #    print("CHECK RISE", "HAVE PREVIOUS", self.previous_check_value, current_value)
+        #    result = self.threshold < current_value and self.previous_check_value < self.threshold
+
+        #self.previous_check_value = current_value
+        #print("UPDATED PREVIOUS", self.previous_check_value)
+
+        #return result
 
 class SystemStartNotificationConfig(NotificationConfig):
 	def __init__(self, *args, **kwargs):
@@ -140,6 +189,8 @@ class NotificationManager:
 		self.email_manager = email_manager
 		self.last_check_timestamps = {}
 		self.current_sensor_values = None
+		self.master_check_interval = min([x.check_interval for x in notification_configs])
+		print('Notification Manager master_check_interval', self.master_check_interval)
 	
 	def start_watching(self):
 		thread = Thread(target=self.watch_loop)
@@ -148,7 +199,7 @@ class NotificationManager:
 	def watch_loop(self):
 		current_timestamp = time.time()
 
-		self.current_sensor_values = asyncio.run(self.sensor_manager.get_latest_values())
+		self.current_sensor_values = asyncio.run(self.sensor_manager.get_latest_values_filled_with_previous())
 
 		try:
 			for index, notification_config in enumerate(self.notification_configs):
@@ -163,7 +214,7 @@ class NotificationManager:
 					except Exception as e:
 						print(f'an error occurred while attempting to check or send notification {notification_config}', e)
 		finally:
-				time.sleep(1)
+				time.sleep(self.master_check_interval)
 				self.watch_loop()
 
 	def send_notification(self, notification_config: NotificationConfig):

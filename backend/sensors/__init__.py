@@ -1,4 +1,5 @@
 from .Sensor import Sensor
+from .SensorReadError import SensorReadError
 from .Mock import Mock
 
 try:

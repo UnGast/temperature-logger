@@ -129,7 +129,7 @@ class DefaultDataLogger(DataLogger):
         os.makedirs(filepath.parent)
 
       file_existed = filepath.exists()
-      self.opened_file = open(filepath, 'a')
+      self.opened_file = open(filepath, 'a', buffering=1)
       self.opened_file_timestamp = containing_file_timestamp
 
       return not file_existed

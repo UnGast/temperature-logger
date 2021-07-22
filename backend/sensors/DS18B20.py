@@ -10,10 +10,10 @@ class DS18B20(sensors.Sensor):
         raw_info = self.file.read()
         self.file.seek(0)
 
-        search_results = re.findall(r"t=([0-9]+)", raw_info)
+        search_results = re.findall(r"t=(-?[0-9]+)", raw_info)
 
         if len(search_results) > 0:
             temp = int(search_results[0]) / 1000
             return temp
         else:
-            return 0
+            raise sensors.SensorReadError("did not get valid answer from sensor")
