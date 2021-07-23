@@ -204,6 +204,11 @@ class NotificationManager:
         thread.start()
 
     def watch_loop(self):
+        self.single_watch_step()
+        time.sleep(self.master_check_interval)
+        self.watch_loop()
+
+    def single_watch_step(self):
         current_timestamp = self.get_time()
 
         self.current_sensor_values = asyncio.run(self.sensor_manager.get_latest_values_filled_with_previous())
@@ -220,9 +225,8 @@ class NotificationManager:
                             self.send_notification(notification_config)
                     except Exception as e:
                         print(f'an error occurred while attempting to check or send notification {notification_config}', e)
-        finally:
-                time.sleep(self.master_check_interval)
-                self.watch_loop()
+        except Exception as e:
+            print('an error occurred while checking for possible notifications', e)
 
     def send_notification(self, notification_config: NotificationConfig):
         print('send notification for config:', notification_config)
@@ -238,7 +242,7 @@ class NotificationManager:
             text=text)
 
     @staticmethod
-    def parse_notifications_config(config_file_path: Path) -> List[Any]:
+    def parse_notifications_config(config_file_path: Path, get_time=time.time) -> List[Any]:
         with open(config_file_path, 'rb') as file:
             raw_notification_configs = yaml.load(file, Loader=yaml.Loader)
 
@@ -249,16 +253,16 @@ class NotificationManager:
 
                 for potential_type in potential_config_types:
                     try:
-                        parsed = potential_type.from_dict(raw_notification_config)
+                        parsed = potential_type.from_dict(raw_notification_config, get_time=get_time)
                         if parsed is not None:
                             notification_configs.append(parsed)
                             found_matching_type = True
                             break	
                     except Exception as e:
-                        #print(f'error when parsing config {index}: {e}')
+                        print(f'error when parsing config {index}: {e}')
                         pass
 
                 if not found_matching_type:
-                    raise Exception(f'found no matching type for notification config at index: {index}')
+                    raise Exception(f'found no matching type for notification config at index: {index}, raw: {raw_notification_config}')
                     
             return notification_configs
