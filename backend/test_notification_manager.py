@@ -1,4 +1,4 @@
-from notification_manager import RiseAboveNotificationConfig
+from notification_manager import RiseAboveNotificationConfig, SystemStartNotificationConfig
 
 class MockEmailManager:
     def __init__(self, on_send):
@@ -40,3 +40,17 @@ def test_rise_above_notification_config():
 
     assert not config.check_signal({0: 1})
     assert config.check_signal({0: 1}) == True
+
+def test_system_start_notification_config():
+    config = SystemStartNotificationConfig(
+            get_time=MockGetTime(),
+            sender_email='sender',
+            receiver_email='receiver',
+            message_subject='subject',
+            message='message',
+            check_interval=1
+        )
+
+    assert config.check_signal({})
+    assert not config.check_signal({})
+    assert not config.check_signal({})
