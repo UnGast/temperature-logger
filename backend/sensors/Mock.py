@@ -10,5 +10,5 @@ class Mock(sensors.Sensor):
         self.period = period
 
   def __read__(self) -> float:
-        value = self.amplitude * math.sin((time.time() % self.period) / self.period * 2 * 3.1415926535) + self.mean
+        value = self.amplitude * math.sin((time.time() / self.period) * 2 * 3.1415926535) + self.mean
         return value

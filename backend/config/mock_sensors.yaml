@@ -1,7 +1,7 @@
 - type: mock
   id: 0
   position: "somewhere over the rainbow"
-  correction_offset: -20.0
+  correction_offset: -2.0
   amplitude: 5
   mean: 20
   period: 30
@@ -9,7 +9,7 @@
 - type: mock
   id: 1
   position: "behind the oven"
-  correction_offset: 10.0
+  correction_offset: 1.0
   amplitude: 10
   mean: 15
-  period: 60
+  period: 20
