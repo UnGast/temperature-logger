@@ -89,39 +89,32 @@ class BaseThresholdNotificationConfig(NotificationConfig):
             breached = self.tracking_breach
 
         if breached and not self.tracking_breach:
-            print("start tracking threshold breach", self)
             self.tracking_breach = True
             self.current_breach_start_timestamp = self.get_time()
             self.current_breach_notified = False
         elif not breached and self.tracking_breach:
-            print("threshold breach interrupted by non-breaching value", self)
             self.tracking_breach = False
 
         if breached and self.tracking_breach:
-            print("check breach reaches min duration")
             current_timestamp = self.get_time()
             duration = current_timestamp - self.current_breach_start_timestamp
             duration_reached = duration >= self.min_breach_duration
 
-            print("reached?", duration_reached)
-
             result = duration_reached and not self.current_breach_notified 
-            print("notify?", result, "already notified?", self.current_breach_notified)
 
             if duration_reached:
                 self.current_breach_notified = True
             
-            print("BFORE RET", result)
             return result
 
         return False
 
-        @abstractmethod
-        def check_threshold_breached(self, current_sensor_values):
-            pass
+    @abstractmethod
+    def check_threshold_breached(self, current_sensor_values):
+        pass
 
-        def __str__(self):
-            return f'Notification {{ {self.get_type_name()}: {str(self.threshold)}, sender: {self.sender_email}, receiver: {self.receiver_email} }}'
+    def __str__(self):
+        return f'Notification {{ {self.get_type_name()}: {str(self.threshold)}, sender: {self.sender_email}, receiver: {self.receiver_email} }}'
 
 class FallBelowNotificationConfig(BaseThresholdNotificationConfig):
 	@classmethod
@@ -154,20 +147,6 @@ class RiseAboveNotificationConfig(BaseThresholdNotificationConfig):
 			raise Exception('no valid value, could not check threshold breached')
 		else:
 			return current_value > self.threshold
-
-		#result = False
-
-        #if self.previous_check_value is None:
-        #    result = self.threshold < current_value
-        #    print("CHECK RISE", "HAVE NO PREVIOUS", current_value)
-        #else:
-        #    print("CHECK RISE", "HAVE PREVIOUS", self.previous_check_value, current_value)
-        #    result = self.threshold < current_value and self.previous_check_value < self.threshold
-
-        #self.previous_check_value = current_value
-        #print("UPDATED PREVIOUS", self.previous_check_value)
-
-        #return result
 
 class SystemStartNotificationConfig(NotificationConfig):
 	def __init__(self, *args, **kwargs):
