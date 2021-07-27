@@ -25,17 +25,17 @@ class MockGetTime:
 
 def test_rise_above_notification_config():
     config = RiseAboveNotificationConfig(
-            get_time=MockGetTime(),
-            sender_email='sender',
-            receiver_email='receiver',
-            message_subject='subject',
-            message='message',
-            check_interval=0,
-            sensor_id=0,
-            threshold=0,
-            min_breach_duration=2
-        )
-    
+        get_time=MockGetTime(),
+        sender_email='sender',
+        receiver_email='receiver',
+        message_subject='subject',
+        message='message',
+        check_interval=0,
+        sensor_id=0,
+        threshold=0,
+        min_breach_duration=2
+    )
+
     assert not config.check_signal({0: -1})
     assert not config.check_signal({0: -2})
 
@@ -50,13 +50,13 @@ def test_rise_above_notification_config():
 
 def test_system_start_notification_config():
     config = SystemStartNotificationConfig(
-            get_time=MockGetTime(),
-            sender_email='sender',
-            receiver_email='receiver',
-            message_subject='subject',
-            message='message',
-            check_interval=1
-        )
+        get_time=MockGetTime(),
+        sender_email='sender',
+        receiver_email='receiver',
+        message_subject='subject',
+        message='message',
+        check_interval=1
+    )
 
     assert config.check_signal({})
     assert not config.check_signal({})
@@ -92,7 +92,7 @@ def test_notification_manager():
         nonlocal emails_sent_count
         emails_sent_count += 1
     mock_email_manager = MockEmailManager(on_send)
-    notification_manager = NotificationManager(configs, mock_sensor_manager, mock_email_manager, MockGetTime())
+    notification_manager = NotificationManager(configs, sensor_manager=mock_sensor_manager, email_manager=mock_email_manager, get_time=MockGetTime())
 
     notification_manager.single_watch_step()
     assert emails_sent_count == 1
@@ -112,3 +112,12 @@ def test_notification_manager():
 
     notification_manager.single_watch_step()
     assert emails_sent_count == 2
+
+def test_watch_loop():
+    mock_sensor_manager = MockSensorManager({})
+    mock_email_manager = MockEmailManager(None)
+    notification_manager = NotificationManager([], sensor_manager=mock_sensor_manager, email_manager=mock_email_manager, get_time=MockGetTime())
+    notification_manager.master_check_interval = 0
+
+    notification_manager.start_watching()
+    notification_manager.watch_thread.join(timeout=0.5)

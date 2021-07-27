@@ -196,17 +196,21 @@ class NotificationManager:
 
         self.last_check_timestamps = {}
         self.current_sensor_values = None
-        self.master_check_interval = min([x.check_interval for x in notification_configs])
+        self.master_check_interval = 1 if len(notification_configs) == 0 else min([x.check_interval for x in notification_configs])
+
+        self.watch_thread = None
         print('Notification Manager master_check_interval', self.master_check_interval)
 
     def start_watching(self):
-        thread = Thread(target=self.watch_loop)
-        thread.start()
+        if self.watch_thread is not None:
+            raise Exception('can only start one watching thread per notification manager')
+        self.watch_thread = Thread(target=self.watch_loop)
+        self.watch_thread.start()
 
     def watch_loop(self):
-        self.single_watch_step()
-        time.sleep(self.master_check_interval)
-        self.watch_loop()
+        while True:
+            self.single_watch_step()
+            time.sleep(self.master_check_interval)
 
     def single_watch_step(self):
         current_timestamp = self.get_time()
