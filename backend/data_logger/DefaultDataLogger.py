@@ -1,8 +1,10 @@
 import asyncio
 import time
+import datetime
 import os
 import math
 from pathlib import Path
+from typing import Dict
 from .DataLogger import DataLogger
 from .CSVFileManager import CSVFileManager, Column as CSVColumn
 from sensor_manager import SensorManager
@@ -70,6 +72,9 @@ class DefaultDataLogger(DataLogger):
     return past_data
 
   async def get_log_files_containing_interval(self, start: int, end: int):
+    """
+    Return all log files of which the data record time interval overlaps with the given time interval.
+    """
     log_files = await self.get_log_files()
     filtered_files = []
     
@@ -87,14 +92,21 @@ class DefaultDataLogger(DataLogger):
   async def get_log_files(self):
     return list(self.directory.glob('*.csv'))
 
-  def get_log_file_timestamps(self, file_path) -> { 'start', 'end' }:
+  def get_log_file_timestamps(self, file_path) -> Dict[str, int]:
     parts = file_path.stem.split('-')
-    return { 'start': int(parts[0]), 'end': int(parts[1]) }
+    return { 'start': self.file_timestamp_from_formatted_str(parts[0]), 'end': self.file_timestamp_from_formatted_str(parts[1]) }
+  
+  def file_timestamp_to_formatted_str(timestamp: int):
+    timestamp = datetime.datetime.utcfromtimestamp(timestamp)
+    return timestamp.strftime('%Y%m%d_%H%M%S')
+  
+  def file_timestamp_from_formatted_str(raw: str) -> int:
+    return datetime.datetime.strptime(raw, '%Y%m%d_%H%M%S').timestamp()
 
-  """
-  Returns the timestamp of the first log file.
-  """
   async def get_log_start_timestamp(self) -> int:
+    """
+    Returns the timestamp of the first log file.
+    """
     files = await self.get_log_files()
 
     if len(files) == 0:
@@ -134,9 +146,10 @@ class DefaultDataLogger(DataLogger):
 
       return not file_existed
 
-  def get_filepath_for_timestamp(self, timestamp):
-    end_timestamp = timestamp + self.file_interval
-    return self.directory/"{}-{}.csv".format(timestamp, end_timestamp)
+  def get_filepath_for_timestamp(self, start_timestamp):
+    end_timestamp = start_timestamp + self.file_interval
+    return self.directory/"{}-{}.csv".format(
+      self.file_timestamp_to_formatted_str(start_timestamp),
+      self.file_timestamp_to_formatted_str(end_timestamp))
 
   async def get_current_sensor_data(self):
-    return await self.sensor_manager.get_latest_values()
