@@ -96,11 +96,11 @@ class DefaultDataLogger(DataLogger):
     parts = file_path.stem.split('-')
     return { 'start': self.file_timestamp_from_formatted_str(parts[0]), 'end': self.file_timestamp_from_formatted_str(parts[1]) }
   
-  def file_timestamp_to_formatted_str(timestamp: int):
+  def file_timestamp_to_formatted_str(self, timestamp: int):
     timestamp = datetime.datetime.utcfromtimestamp(timestamp)
     return timestamp.strftime('%Y%m%d_%H%M%S')
   
-  def file_timestamp_from_formatted_str(raw: str) -> int:
+  def file_timestamp_from_formatted_str(self, raw: str) -> int:
     return datetime.datetime.strptime(raw, '%Y%m%d_%H%M%S').timestamp()
 
   async def get_log_start_timestamp(self) -> int:
@@ -153,3 +153,4 @@ class DefaultDataLogger(DataLogger):
       self.file_timestamp_to_formatted_str(end_timestamp))
 
   async def get_current_sensor_data(self):
+    return await self.sensor_manager.get_latest_values()

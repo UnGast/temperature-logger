@@ -16,9 +16,18 @@ class WebsocketProtocol:
         self.data_logger = data_logger
         self.notification_manager = notification_manager
         self.listen_task = asyncio.create_task(self.listen())
-
+        self.listen_task.add_done_callback(self.handle_listen_done)
+    
     async def execute(self):
         await self.listen_task
+
+    def handle_listen_done(self, task: asyncio.Task):
+        try:
+            task.result()
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print("Exception in listen", e)
 
     async def listen(self):
         print("starting listening on socket", self.socket)
@@ -37,9 +46,21 @@ class WebsocketProtocol:
 
         if action == "stream":
             interval = int(payload["interval"])
+
             if interval < 1:
                 await self.end_protocol_violation("streaming interval must be at least 1 second")
+
             stream_task = asyncio.create_task(self.stream_values(interval))
+
+            def handle_stream_end(task):
+                try:
+                    stream_task.result()
+                except asyncio.CancelledError:
+                    pass
+                except Exception as e:
+                    print("Exception during stream values", e)
+
+            stream_task.add_done_callback(handle_stream_end)
 
         elif action == "end_stream":
             self.streaming = False
@@ -87,7 +108,7 @@ class WebsocketProtocol:
                 }))
 
                 await asyncio.sleep(interval)
-
+        
         finally:
             self.streaming = False
             print("stopped streaming values")
