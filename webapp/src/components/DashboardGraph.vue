@@ -3,7 +3,7 @@
     <h1 class="heading">Graph</h1>
 		<div class="content">
       <graph :initialVisibleArea="graphVisibleArea" :data="graphData" :labels="graphLabels"/>
-      <div class="timeframe-selection">
+      <!--<div class="timeframe-selection">
         <label class="label">Zeitraum</label>
         <button-options class="options" :options="[ { label: 'Neueste', value: 'latest' }, { label: 'Intervall', value: 'interval' } ]" v-model="selectedTimeframe"/>
         <div class="settings">
@@ -13,20 +13,20 @@
             <button class="fetch-timeframe-interval-button button" @click="handleRequestFetchTimeframeIntervalData">Anzeigen</button>
           </template>
         </div>
-      </div>
+      </div>-->
     </div>
   </section>
 </template>
 
 <script>
-import { reactive } from 'vue'
+//import { reactive } from 'vue'
 import Graph from './Graph'
-import DatetimeInput from './DatetimeInput'
+//import DatetimeInput from './DatetimeInput'
 import SensorDataManager from '~/data/sensor/SensorDataManager'
-import ButtonOptions from './ButtonOptions'
+//import ButtonOptions from './ButtonOptions'
 
 export default {
-  components: { Graph, DatetimeInput, ButtonOptions },
+  components: { Graph },
   data() {
 
     return {
