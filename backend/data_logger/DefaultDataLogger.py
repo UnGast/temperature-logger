@@ -53,23 +53,33 @@ class DefaultDataLogger(DataLogger):
 
       await asyncio.sleep(self.interval)
 
-  async def get_past_data(self, start, end):
-    log_files = await self.get_log_files_containing_interval(start, end)
-    past_data = []
+  def get_log_file_start_timestamp(self, file_path) -> int:
+    return self.file_timestamp_from_formatted_str(file_path.stem)
+  
+  def file_timestamp_to_formatted_str(self, timestamp: int):
+    timestamp = datetime.datetime.utcfromtimestamp(timestamp)
+    return timestamp.strftime('%Y%m%d')
+  
+  def file_timestamp_from_formatted_str(self, raw: str) -> int:
+    return datetime.datetime.strptime(raw, '%Y%m%d').timestamp()
 
-    for file in log_files:
-      file_data = self.csv_file_manager.read_file(file)
+  def get_filepath_for_timestamp(self, timestamp):
+    return self.directory/"{}.csv".format(self.file_timestamp_to_formatted_str(timestamp))
 
-      for line_data in file_data:
-        try:
-            timestamp = int(line_data['timestamp_unix'])
+  async def ensure_timestamp_containing_file_opened(self, contained_timestamp) -> bool:
+    if self.opened_file_timestamp != contained_timestamp:
+      if self.opened_file is not None:
+        self.opened_file.close()
 
-            if timestamp >= start and timestamp <= end:
-              past_data.append(line_data)
-        except Exception as e:
-            print('warning could not read line in file data', line_data, 'because:', e)
+      filepath = self.get_filepath_for_timestamp(contained_timestamp)
+      if not filepath.parent.exists():
+        os.makedirs(filepath.parent)
 
-    return past_data
+      file_existed = filepath.exists()
+      self.opened_file = open(filepath, 'a', buffering=1)
+      self.opened_file_timestamp = contained_timestamp
+
+      return not file_existed
 
   async def get_log_files_containing_interval(self, start: int, end: int):
     """
@@ -79,11 +89,12 @@ class DefaultDataLogger(DataLogger):
     filtered_files = []
     
     for file in log_files:
-      timestamps = self.get_log_file_timestamps(file)
+      start_timestamp = self.get_log_file_start_timestamp(file)
+      end_timestamp = start_timestamp + 86400
 
-      if (timestamps['start'] >= start and timestamps['start'] <= end) \
-        or (timestamps['end'] >= start and timestamps['end'] <= end) \
-          or (timestamps['start'] <= start and timestamps['end'] >= end):
+      if (start_timestamp >= start and start_timestamp <= end) \
+        or (end_timestamp >= start and end_timestamp <= end) \
+          or (start_timestamp <= start and end_timestamp >= end):
 
             filtered_files.append(file)
 
@@ -91,17 +102,6 @@ class DefaultDataLogger(DataLogger):
 
   async def get_log_files(self):
     return list(self.directory.glob('*.csv'))
-
-  def get_log_file_timestamps(self, file_path) -> Dict[str, int]:
-    parts = file_path.stem.split('-')
-    return { 'start': self.file_timestamp_from_formatted_str(parts[0]), 'end': self.file_timestamp_from_formatted_str(parts[1]) }
-  
-  def file_timestamp_to_formatted_str(self, timestamp: int):
-    timestamp = datetime.datetime.utcfromtimestamp(timestamp)
-    return timestamp.strftime('%Y%m%d_%H%M%S')
-  
-  def file_timestamp_from_formatted_str(self, raw: str) -> int:
-    return datetime.datetime.strptime(raw, '%Y%m%d_%H%M%S').timestamp()
 
   async def get_log_start_timestamp(self) -> int:
     """
@@ -122,35 +122,26 @@ class DefaultDataLogger(DataLogger):
 
     return min_interval_start
 
-  async def get_containing_file_timestamp(self, contained_timestamp):
-    contained_timestamp = int(time.time())
-    time_since_log_start = contained_timestamp - self.log_start_timestamp
-    interval_index = math.floor(time_since_log_start / self.file_interval)
-    file_timestamp = self.log_start_timestamp + self.file_interval * interval_index
-    return file_timestamp
-
-  async def ensure_timestamp_containing_file_opened(self, contained_timestamp) -> bool:
-    containing_file_timestamp = await self.get_containing_file_timestamp(contained_timestamp)
-
-    if self.opened_file_timestamp != containing_file_timestamp:
-      if self.opened_file is not None:
-        self.opened_file.close()
-
-      filepath = self.get_filepath_for_timestamp(containing_file_timestamp)
-      if not filepath.parent.exists():
-        os.makedirs(filepath.parent)
-
-      file_existed = filepath.exists()
-      self.opened_file = open(filepath, 'a', buffering=1)
-      self.opened_file_timestamp = containing_file_timestamp
-
-      return not file_existed
-
-  def get_filepath_for_timestamp(self, start_timestamp):
-    end_timestamp = start_timestamp + self.file_interval
-    return self.directory/"{}-{}.csv".format(
-      self.file_timestamp_to_formatted_str(start_timestamp),
-      self.file_timestamp_to_formatted_str(end_timestamp))
-
   async def get_current_sensor_data(self):
     return await self.sensor_manager.get_latest_values()
+
+  async def get_past_data(self, start, end):
+    log_files = await self.get_log_files_containing_interval(start, end)
+    past_data = []
+
+    for file in log_files:
+      file_data = self.csv_file_manager.read_file(file)
+
+      for line_data in file_data:
+        try:
+            timestamp = int(line_data['timestamp_unix'])
+
+            if timestamp >= start and timestamp <= end:
+              past_data.append(line_data)
+        except Exception as e:
+            print('warning could not read line in file data', line_data, 'because:', e)
+
+    return past_data
+
+def get_local_timezone():
+  return datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
