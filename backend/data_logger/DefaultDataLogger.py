@@ -58,6 +58,7 @@ class DefaultDataLogger(DataLogger):
   
   def file_timestamp_to_formatted_str(self, timestamp: int):
     timestamp = datetime.datetime.utcfromtimestamp(timestamp)
+    timestamp = self.convert_datetime_timestamp_to_local(timestamp)
     return timestamp.strftime('%Y%m%d')
   
   def file_timestamp_from_formatted_str(self, raw: str) -> int:
@@ -115,8 +116,7 @@ class DefaultDataLogger(DataLogger):
     min_interval_start = None
 
     for file in files:
-      interval_string = file.stem
-      interval_start = self.get_log_file_timestamps(file)['start'] #int(interval_string.split('-')[0])
+      interval_start = self.get_log_file_start_timestamp(file)
       if min_interval_start is None or interval_start < min_interval_start:
         min_interval_start = interval_start
 
@@ -142,6 +142,3 @@ class DefaultDataLogger(DataLogger):
             print('warning could not read line in file data', line_data, 'because:', e)
 
     return past_data
-
-def get_local_timezone():
-  return datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo

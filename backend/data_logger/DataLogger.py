@@ -1,7 +1,7 @@
 import asyncio
 from pathlib import Path
 import io
-from datetime import datetime
+import datetime
 from abc import ABC, abstractmethod
 from typing import List, Union
 from .CSVFileManager import CSVFileManager, Column as CSVColumn
@@ -64,4 +64,14 @@ class DataLogger(ABC):
     return csv
 
   def format_unix_timestamp(self, timestamp):
-    return datetime.utcfromtimestamp(timestamp).strftime('%H:%M:%S %d.%m.%Y')
+    timestamp = datetime.datetime.utcfromtimestamp(timestamp)
+    timestamp = self.convert_datetime_timestamp_to_local(timestamp)
+    return timestamp.strftime('%H:%M:%S %d.%m.%Y')
+  
+  def convert_datetime_timestamp_to_local(self, timestamp):
+    timestamp = timestamp.replace(tzinfo=datetime.timezone(datetime.timedelta(0), name='utc'))
+    timestamp = timestamp.astimezone(self.get_local_timezone())
+    return timestamp
+
+  def get_local_timezone(self):
+    return datetime.datetime.now().astimezone().tzinfo
