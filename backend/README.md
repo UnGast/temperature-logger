@@ -56,10 +56,13 @@ To add multiple sensors, place multiple configuration blocks as given below in t
 <br>
 
 ### options for type mock
+
+<br>
+
 ```
 - type: mock
   id: <choose an arbitrary unique integer id>
-  position: <string describing the position so that the sensor can be identified in the dashboard>
+  position: <string describing the position so that the sensor can be identified on the dashboard>
   correction_offset: <a value added to the sensor readout for correction purposes>
   amplitude: <amplitude of generated sine wave>
   mean: <mean of generated sine wave>
@@ -75,4 +78,51 @@ example
   amplitude: 5
   mean: 20
   period: 30
+```
+
+<br>
+
+### options for type dht22
+
+<br>
+
+```
+- type: dht22
+  id: <choose an arbitrary unique integer id>
+  position: <string describing the position so that the sensor can be identified on the dashboard>
+  pin: <GPIO pin number prefixed with "D", for example D17 for GPIO pin 17>
+  correction_offset: <a value added to the sensor readout for correction purposes>
+```
+
+example
+```
+- type: dht22
+  id: 0
+  position: "position"
+  pin: "D4"
+  correction_offset: 0
+```
+
+<br>
+
+### options for type ds18b20
+
+<br>
+
+```
+- type: ds18b20
+  id: <choose an arbitrary unique integer id>
+  position: <string describing the position so that the sensor can be identified on the dashboard>
+  device_id: <the unique id of the sensor in the one wire protocol>
+  correction_offset: <a value added to the sensor readout for correction purposes>
+```
+
+example
+
+```
+- type: ds18b20
+  id: 0
+  position: "position"
+  device_id: "28-0300a279abec"
+  correction_offset: 0
 ```
