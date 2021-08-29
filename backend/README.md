@@ -62,7 +62,7 @@ To add multiple sensors, place multiple configuration blocks as given below in t
 ```
 - type: mock
   id: <choose an arbitrary unique integer id>
-  position: <string describing the position so that the sensor can be identified on the dashboard>
+  position: "<string describing the position so that the sensor can be identified on the dashboard>"
   correction_offset: <a value added to the sensor readout for correction purposes>
   amplitude: <amplitude of generated sine wave>
   mean: <mean of generated sine wave>
@@ -89,8 +89,8 @@ example
 ```
 - type: dht22
   id: <choose an arbitrary unique integer id>
-  position: <string describing the position so that the sensor can be identified on the dashboard>
-  pin: <GPIO pin number prefixed with "D", for example D17 for GPIO pin 17>
+  position: "<string describing the position so that the sensor can be identified on the dashboard>"
+  pin: "<GPIO pin number prefixed with "D", for example D17 for GPIO pin 17>"
   correction_offset: <a value added to the sensor readout for correction purposes>
 ```
 
@@ -112,8 +112,8 @@ example
 ```
 - type: ds18b20
   id: <choose an arbitrary unique integer id>
-  position: <string describing the position so that the sensor can be identified on the dashboard>
-  device_id: <the unique id of the sensor in the one wire protocol>
+  position: "<string describing the position so that the sensor can be identified on the dashboard>"
+  device_id: "<the unique id of the sensor in the one wire protocol>"
   correction_offset: <a value added to the sensor readout for correction purposes>
 ```
 
@@ -125,4 +125,49 @@ example
   position: "position"
   device_id: "28-0300a279abec"
   correction_offset: 0
+```
+
+<br>
+
+## Logger
+
+<br>
+
+### Mock Logger
+
+Does not output to a file, only to the console.
+
+```
+type: mock
+interval: <interval between console outputs>
+```
+
+<br>
+
+### Default Logger
+
+Writes data in CSV format into files named by date in the specified directory.
+
+```
+type: default
+interval: <interval between writes to files>
+directory: <absolute path to directory where data files should be placed>
+```
+
+<br>
+
+## Emails
+
+<br>
+
+Configuration for emails used to send notifications. To provide multiple emails, put multiple blocks of the following syntax in the configuration file. The dash (-) at the beginning of each block is mandatory.
+
+<br>
+
+```
+- address: <the email address>
+  name: '<the name displayed as sender of notifications>'
+  host: <smtp host address>
+  port: <smtp port>
+  password: '<password for the email address>'
 ```
