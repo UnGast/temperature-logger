@@ -2,41 +2,21 @@
 
 This webapp can stream live data, fetch historical data, initiate CSV file downloads for historical data fetched from the backend service and display information about the sensors connected to the machine running the backend service.
 
-The graphs are SVGs generated with the help of Vue's reactivity system and the data is transferred via websockets.
-
 User settings such as the host and port of the backend service are stored on the user's machine and by that are persistent over multiple sessions.
 
 <br>
 
-### Project setup
+# Installation
+
+The necessary dependencies will be installed by the following command
+
 ```
 npm install
 ```
 
 <br>
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-<br>
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-<br>
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-<br>
-
-### Configuration
+# Configuration
 
 By providing a `.env` or `.env.local` file in the root directory environment variables can be provided.
 
@@ -48,7 +28,38 @@ VUE_APP_DEFAULT_SERVER_PORT: (optional) the default port on the host that should
 
 <br>
 
-### Build as electron desktop app
+# Running
+
+## Development mode
+
+with hot reloading when code is changed
+
+```
+npm run serve
+```
+
+<br>
+
+## Production mode
+
+Compile code and assets into the dist directory:
+
+
+```
+npm run build
+```
+
+<br>
+
+Run the compiled code:
+
+```
+npm run serve:dist
+```
+
+<br>
+
+## Alternative to webapp: building as electron desktop app
 
 By using electron and electron-builder via vue-cli-plugin-electron-builder this webapp can be bundled into an executable as a standalone desktop application.
 
