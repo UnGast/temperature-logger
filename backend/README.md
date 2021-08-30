@@ -1,30 +1,8 @@
 # Python backend for reading, storing and serving sensor data
 
-To run a server with mock data for demonstration or testing purposes use `python main.py --mock`.
-
 <br>
 
-Other available command line options are:
-
-**--sensors**: path to yaml configuration file, not required if --mock is given
-
-**--logger**: path to yaml configuration file, not required if --mock is given
-
-**--host**
-
-**--port**
-
-<br>
-
-Run `python main.py --help` to see the list of available arguments.
-
-<br>
-
-Dependencies listed in requirements.txt.
-
-<br>
-
-# Installation on Raspberry Pi
+# Installation on a Linux system
 
 After cloning the repository go to the backend directory: `cd backend`.
 
@@ -42,7 +20,7 @@ Install dependencies for reading out sensors: `pip install -r requirements_senso
 
 # Configuration
 
-Configuration options can be set in yaml files. The paths to these files are provided to the program via the above listed command line options.
+Configuration options can be set in yaml files. The paths to these files are provided to the program via the command line options documented below.
 
 <br>
 
@@ -224,3 +202,33 @@ Sent when the temperature reported by the specified sensor is above the specifie
   message_subject: '<subject of notification email>'
   message: '<optional, text in notification email>'
 ```
+
+# Running
+
+To run the server with mock data for demonstration or testing purposes use `python main.py --mock`.
+
+<br>
+
+Other available command line options are:
+
+**--sensors**: path to yaml configuration file, not required if --mock is given
+
+**--logger**: path to yaml configuration file, not required if --mock is given
+
+**--emails**: path to yaml configuration file, not required if --mock is given
+
+**--notifications**: path to yaml configuration file, not required if --mock is given
+
+**--host**: optional
+
+**--port**: optional
+
+<br>
+
+Run `python main.py --help` to see the list of available arguments.
+
+<br>
+
+To run the server with a specific configuration use: `python main.py --sensors <path to yaml> --logger <path to yaml> --emails <path to yaml> --notifications <path to yaml> --host <ip address to listen on> --port <port to listen on>`
+
+Note that all four configuration files must be specified. The `--host` and `--port` options are optional.
