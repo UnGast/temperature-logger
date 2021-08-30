@@ -160,7 +160,7 @@ directory: <absolute path to directory where data files should be placed>
 
 <br>
 
-Configuration for emails used to send notifications. To provide multiple emails, put multiple blocks of the following syntax in the configuration file. The dash (-) at the beginning of each block is mandatory.
+This configuration file defines the emails used to send notifications. To provide multiple emails, put multiple blocks of the following syntax in the configuration file. The dash (-) at the beginning of each block is mandatory.
 
 <br>
 
@@ -170,4 +170,57 @@ Configuration for emails used to send notifications. To provide multiple emails,
   host: <smtp host address>
   port: <smtp port>
   password: '<password for the email address>'
+```
+
+<br>
+
+## Notifications
+
+<br>
+
+There are two main notification types: system_start and rise_above.  
+Multiple notifications can be defined. The dash (-) before each block is mandatory.  
+To send a notification to multiple receivers, a notification block has to be inserted into the configuration file for each receiver while all other options in these blocks are kept identical.
+
+<br>
+
+### system start notification
+
+<br>
+
+This notification is sent whenever the program starts.
+
+<br>
+
+```
+- type: system_start
+  sender: '<sender email address, smtp configuration must be provided in emails configuration file>'
+  receiver: '<receiver email address>'
+  check_interval: 100000
+  message_subject: '<subject of notification email>'
+  message: '<optional, text in notification email>'
+```
+
+Note that the `check_interval` is set to a large number. This is because the start notification does not benefit from tests whether the notification should be sent after it was sent for the first time.
+
+<br>
+
+### rise above notification
+
+<br>
+
+Sent when the temperature reported by the specified sensor is above the specified threshold for a duration longer than or equal to the specified breach duration.
+
+<br>
+
+```
+- type: rise_above
+  sensor: <id of the sensor for which the temperature should be monitored, as specified in the sensors configuration file>
+  threshold: <threshold above which the notification should be sent>
+  min_breach_duration: <minimum duration of sensor value being above the threshold to trigger the notification in seconds>
+  sender: '<sender email address, smtp configuration must be provided in emails configuration file>'
+  receiver: '<receiver email address>'
+  check_interval: <interval between tests whether criteria for sending are met, in seconds>
+  message_subject: '<subject of notification email>'
+  message: '<optional, text in notification email>'
 ```
