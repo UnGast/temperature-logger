@@ -139,10 +139,10 @@ class WebsocketProtocol:
 
     async def send_past_data(self, start: int, end: int):
         print("sending past data from {} to {}".format(start, end))
-        #data = await self.data_logger.get_past_data(start, end)
+        data = await self.data_logger.get_past_data(start, end)
         await self.socket.send(json.dumps({
           "type": "past_data",
-          "data": [] # data
+          "data": data
         }))
 
     async def send_log_files_containing_interval(self, start: int, end: int):
