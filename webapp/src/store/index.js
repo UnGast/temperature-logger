@@ -20,8 +20,9 @@ const store = createStore({
 			serverMeta: null,
 			reconnectInterval: 1000,
 			selectedSensorIds: new Set(),
-			selectedTimeframe: 'interval',
+			selectedTimeframe: 'latest',
 			timeframeSettings: {
+				latest: 500,
 				interval: {
 					start: Math.floor(Date.now() / 1000) - 1000,
 					end: Math.floor(Date.now() / 1000)

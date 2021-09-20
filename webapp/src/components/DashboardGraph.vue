@@ -2,7 +2,7 @@
   <section class="dashboard-graph dashboard-section">
     <h1 class="heading">Graph</h1>
 		<div class="content">
-      <graph :initialVisibleArea="graphVisibleArea" :data="graphData" :labels="graphLabels"/>
+      <graph :visibleArea="graphVisibleArea" :data="graphData" :labels="graphLabels"/>
       <!--<div class="timeframe-selection">
         <label class="label">Zeitraum</label>
         <button-options class="options" :options="[ { label: 'Neueste', value: 'latest' }, { label: 'Intervall', value: 'interval' } ]" v-model="selectedTimeframe"/>
@@ -27,13 +27,6 @@ import SensorDataManager from '~/data/sensor/SensorDataManager'
 
 export default {
   components: { Graph },
-  data() {
-
-    return {
-      timeframeIntervalStart: this.$store.state.timeframeSettings.interval.start,
-      timeframeIntervalEnd:this.$store.state.timeframeSettings.interval.end
-    }
-  },
   computed: {
 		selectedTimeframe: {
 			get()  {
@@ -73,7 +66,7 @@ export default {
         let latestTimestamp = SensorDataManager.getLatestTimestamp(this.$store.state.sensorData)
 
         return {
-          xMin: latestTimestamp - 100,
+          xMin: latestTimestamp - this.$store.state.timeframeSettings.latest,
           xMax: latestTimestamp
         }
       } else if (this.selectedTimeframe === 'interval') {

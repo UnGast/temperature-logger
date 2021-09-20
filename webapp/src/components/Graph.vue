@@ -17,7 +17,7 @@ export default {
 			type: Object,
 			required: true
 		},
-		initialVisibleArea: {
+		visibleArea: {
 			type: Object,
 			default: null
 		}
@@ -41,12 +41,17 @@ export default {
   computed: {
     preparedData() {
       return Object.entries(this.data).reduce((result, [sensorId, values]) => {
-        result[sensorId] = values.map(value => ({ x: value.x * 1000, y: value.y }))
+        result[sensorId] = this.filterValues(values).map(value => ({ x: value.x * 1000, y: value.y }))
         return result
       }, {})
     }
   },
   methods: {
+    filterValues(values) {
+      return values.filter((value) => {
+        return value.x >= this.visibleArea.xMin && value.x <= this.visibleArea.xMax
+      })
+    },
     buildDatasetsConfig() {
       return Object.entries(this.preparedData).map(([sensorId, values]) => ({
         data: values,
